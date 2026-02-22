@@ -245,16 +245,16 @@ async function loadFromFirestore() {
 
 /* ═══ DATA ═══ */
 const GC=["#22d3ee","#a78bfa","#fb923c","#f472b6","#4ade80","#facc15","#38bdf8","#c084fc"];
-const DG=[{key:"3x3",label:"3×3",defaultAttempts:5,color:GC[0]},{key:"4x4",label:"4×4",defaultAttempts:5,color:GC[1]},{key:"5x5",label:"5×5",defaultAttempts:3,color:GC[2]}];
+const DG=[{key:"3x3",label:"3×3",defaultAttempts:5,color:GC[0]},{key:"4x4",label:"4×4",defaultAttempts:5,color:GC[1]},{key:"5x5",label:"5×5",defaultAttempts:3,color:GC[2]},{key:"6x6",label:"6×6",defaultAttempts:3,color:GC[3]}];
 const ID=[
-{date:"2026-02-02","3x3":[3.69,2.65,5.47,3.97,4.91],"4x4":[14.62,14.38,9.63,11.7,16.24],"5x5":[52.32,52.91,53.21]},
-{date:"2026-02-03","3x3":[4.38,7.21,4.45,3.23,4.2],"4x4":[14.94,12.94,16.16,13.55,10.19],"5x5":[52.14,46.06]},
-{date:"2026-02-04","3x3":[4.96,2.68,2.74,3.48,3.36],"4x4":[13.44,16.47,17.75,8.55,16.83],"5x5":[39.96,39.48,52.14]},
-{date:"2026-02-05","3x3":[3.19,2.74,3.8,2.48,4.51],"4x4":[8.26,18.83,14.16,9.29,9.39],"5x5":[39.97,61.27,24.31]},
-{date:"2026-02-06","3x3":[3.74,3.65,2.91,3.47,3.75],"4x4":[15.64,11.31,13.17,9.06,12.92],"5x5":[47.51,36.96,30.34]},
-{date:"2026-02-07","3x3":[2.68,2.19,3,3.23,2.87],"4x4":[12.16,10.71,13.87,8.53,9.88],"5x5":[26.86,31.28,34.07]},
-{date:"2026-02-08","3x3":[2.97,4,2.99,3.03,2.83],"4x4":[11.87,10.13,9.47,8.96,9.1],"5x5":[47.37,32.59,33.88]},
-{date:"2026-02-09","3x3":[3.45,2.4,2.43,3.59,2.86],"4x4":[8.21,6.38,7.24,8.43],"5x5":[27.94,38.64,23.45]}
+{date:"2026-02-02","3x3":[3.69,2.65,5.47,3.97,4.91],"4x4":[14.62,14.38,9.63,11.7,16.24],"5x5":[52.32,52.91,53.21],"6x6":[120.5,118.3,125.6]},
+{date:"2026-02-03","3x3":[4.38,7.21,4.45,3.23,4.2],"4x4":[14.94,12.94,16.16,13.55,10.19],"5x5":[52.14,46.06],"6x6":[115.2,112.8,119.4]},
+{date:"2026-02-04","3x3":[4.96,2.68,2.74,3.48,3.36],"4x4":[13.44,16.47,17.75,8.55,16.83],"5x5":[39.96,39.48,52.14],"6x6":[108.7,110.2,105.9]},
+{date:"2026-02-05","3x3":[3.19,2.74,3.8,2.48,4.51],"4x4":[8.26,18.83,14.16,9.29,9.39],"5x5":[39.97,61.27,24.31],"6x6":[102.4,99.8,104.1]},
+{date:"2026-02-06","3x3":[3.74,3.65,2.91,3.47,3.75],"4x4":[15.64,11.31,13.17,9.06,12.92],"5x5":[47.51,36.96,30.34],"6x6":[98.3,95.6,101.2]},
+{date:"2026-02-07","3x3":[2.68,2.19,3,3.23,2.87],"4x4":[12.16,10.71,13.87,8.53,9.88],"5x5":[26.86,31.28,34.07],"6x6":[93.1,90.5,95.8]},
+{date:"2026-02-08","3x3":[2.97,4,2.99,3.03,2.83],"4x4":[11.87,10.13,9.47,8.96,9.1],"5x5":[47.37,32.59,33.88],"6x6":[88.4,86.2,91.7]},
+{date:"2026-02-09","3x3":[3.45,2.4,2.43,3.59,2.86],"4x4":[8.21,6.38,7.24,8.43],"5x5":[27.94,38.64,23.45],"6x6":[83.2,80.9,87.5]}
 ];
 
 const av=a=>a.length?a.reduce((s,v)=>s+v,0)/a.length:0;
@@ -305,7 +305,7 @@ function rD(){
   S.grids.forEach(gr=>{uf+=`<button class="fbtn" onclick="sfl('${gr.key}')" style="background:${S.sf===gr.key?gr.color:'#1e293b'};color:${S.sf===gr.key?'#0a0e17':'#64748b'}">${gr.label}</button>`});
   uf+='</div></div><div style="height:44px"></div>';
   let h=uf+'<div class="stat-row">';
-  g.forEach(gr=>{const v=L[gr.key]||[],fv=F[gr.key]||[];const a=v.length?av(v):null,fa=fv.length?av(fv):null;const c=(a&&fa)?((a-fa)/fa*100):null;
+  g.forEach(gr=>{const lEntry=[...d].reverse().find(x=>x[gr.key]?.length)||d[d.length-1];const fEntry=d.find(x=>x[gr.key]?.length)||d[0];const v=lEntry[gr.key]||[],fv=fEntry[gr.key]||[];const a=v.length?av(v):null,fa=fv.length?av(fv):null;const c=(a&&fa)?((a-fa)/fa*100):null;
   h+=`<div class="stat" style="background:linear-gradient(135deg,${gr.color}10,${gr.color}05);border:1px solid ${gr.color}30"><div class="stat-label">◧ ${gr.label} Moy.</div><div class="stat-value" style="color:${gr.color}">${a?a.toFixed(2):"—"}<span style="font-size:13px;color:#64748b;margin-left:3px">${a?"s":""}</span></div>${c!=null?`<div class="stat-change" style="color:${c<=0?"#34d399":"#f87171"}">${c<=0?"▼":"▲"} ${Math.abs(c).toFixed(1)}% vs jour 1</div>`:""}</div>`});
   h+='</div><div class="stat-row">';
   g.forEach(gr=>{const av2=d.flatMap(x=>x[gr.key]||[]);const b=av2.length?Math.min(...av2):null;
@@ -333,14 +333,14 @@ function rD(){
 function iC(){
   const g=fg(),d=S.data;if(!d.length)return;const lb=d.map(x=>fd(x.date));
   const e1=document.getElementById("cA");
-  if(e1){CH.a=new Chart(e1,{type:'line',data:{labels:lb,datasets:g.map(gr=>({label:gr.label+" moy",data:d.map(x=>(x[gr.key]?.length)?+av(x[gr.key]).toFixed(2):0),borderColor:gr.color,backgroundColor:gr.color+"30",fill:true,tension:.3,pointRadius:4,pointBackgroundColor:gr.color,borderWidth:2.5}))},options:JSON.parse(JSON.stringify(CO))})}
+  if(e1){CH.a=new Chart(e1,{type:'line',data:{labels:lb,datasets:g.map(gr=>({label:gr.label+" moy",data:d.map(x=>(x[gr.key]?.length)?+av(x[gr.key]).toFixed(2):null),borderColor:gr.color,backgroundColor:gr.color+"30",fill:true,tension:.3,pointRadius:4,pointBackgroundColor:gr.color,borderWidth:2.5,spanGaps:false}))},options:JSON.parse(JSON.stringify(CO))})}
   const e2=document.getElementById("cB");
-  if(e2){CH.b=new Chart(e2,{type:'line',data:{labels:lb,datasets:g.map(gr=>({label:gr.label+" best",data:d.map(x=>(x[gr.key]?.length)?+bt(x[gr.key]).toFixed(2):0),borderColor:gr.color,backgroundColor:gr.color,borderDash:[6,3],tension:.3,pointRadius:4,pointBackgroundColor:gr.color,borderWidth:2,fill:false}))},options:JSON.parse(JSON.stringify(CO))})}
+  if(e2){CH.b=new Chart(e2,{type:'line',data:{labels:lb,datasets:g.map(gr=>({label:gr.label+" best",data:d.map(x=>(x[gr.key]?.length)?+bt(x[gr.key]).toFixed(2):null),borderColor:gr.color,backgroundColor:gr.color,borderDash:[6,3],tension:.3,pointRadius:4,pointBackgroundColor:gr.color,borderWidth:2,fill:false,spanGaps:false}))},options:JSON.parse(JSON.stringify(CO))})}
   const e3=document.getElementById("cP");
-  if(e3&&d.length>=2){const fa={};g.forEach(gr=>{const v=d[0][gr.key];fa[gr.key]=v?.length?av(v):0});
-  CH.p=new Chart(e3,{type:'bar',data:{labels:lb,datasets:g.map(gr=>({label:gr.label,data:d.map(x=>{const v=x[gr.key];const a=v?.length?av(v):0;return(fa[gr.key]>0&&a>0)?+((a-fa[gr.key])/fa[gr.key]*100).toFixed(1):0}),backgroundColor:gr.color+"cc",borderRadius:4,maxBarThickness:16}))},options:{...JSON.parse(JSON.stringify(CO)),scales:{...CO.scales,y:{...CO.scales.y,ticks:{color:'#64748b',font:{size:10,family:"'Space Mono'"},callback:v=>v+"%"}}}}})}
+  if(e3&&d.length>=2){const fa={};g.forEach(gr=>{const firstEntry=d.find(x=>x[gr.key]?.length);const v=firstEntry?firstEntry[gr.key]:[];fa[gr.key]=v?.length?av(v):0});
+  CH.p=new Chart(e3,{type:'bar',data:{labels:lb,datasets:g.map(gr=>({label:gr.label,data:d.map(x=>{const v=x[gr.key];const a=v?.length?av(v):null;return(fa[gr.key]>0&&a!=null)?+((a-fa[gr.key])/fa[gr.key]*100).toFixed(1):null}),backgroundColor:gr.color+"cc",borderRadius:4,maxBarThickness:16}))},options:{...JSON.parse(JSON.stringify(CO)),scales:{...CO.scales,y:{...CO.scales.y,ticks:{color:'#64748b',font:{size:10,family:"'Space Mono'"},callback:v=>v+"%"}}}}})}
   const e4=document.getElementById("cC");
-  if(e4){CH.c=new Chart(e4,{type:'line',data:{labels:lb,datasets:g.map(gr=>({label:gr.label,data:d.map(x=>{const v=x[gr.key];return v?.length>=2?+sd(v).toFixed(2):0}),borderColor:gr.color,backgroundColor:gr.color,tension:.3,pointRadius:4,pointBackgroundColor:gr.color,borderWidth:2,fill:false}))},options:JSON.parse(JSON.stringify(CO))})}
+  if(e4){CH.c=new Chart(e4,{type:'line',data:{labels:lb,datasets:g.map(gr=>({label:gr.label,data:d.map(x=>{const v=x[gr.key];return v?.length>=2?+sd(v).toFixed(2):null}),borderColor:gr.color,backgroundColor:gr.color,tension:.3,pointRadius:4,pointBackgroundColor:gr.color,borderWidth:2,fill:false,spanGaps:false}))},options:JSON.parse(JSON.stringify(CO))})}
 }
 
 /* ═══ ENTRY ═══ */
