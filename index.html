@@ -40,7 +40,7 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);min
 .login-logo{display:flex;flex-direction:column;align-items:center;gap:14px}
 .login-logo .big-grid{width:64px;height:64px;border-radius:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:6px;background:linear-gradient(135deg,#22d3ee,#a78bfa)}
 .login-logo .big-grid div{background:rgba(255,255,255,0.85);border-radius:3px}
-.login-logo h1{font-size:28px;font-weight:700;background:linear-gradient(135deg,#22d3ee,#a78bfa,#fb923c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.login-logo h1{font-size:28px;font-weight:700;background:linear-gradient(90deg,#22d3ee,#a78bfa,#fb923c,#f472b6,#22d3ee);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 4s linear infinite}
 .login-logo p{color:var(--text2);font-size:13px}
 .google-btn{display:flex;align-items:center;gap:10px;padding:12px 28px;border-radius:12px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
 .google-btn:hover{background:var(--bg-hover);border-color:var(--border2)}
@@ -67,7 +67,8 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);min
 .logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .logo-grid{width:32px;height:32px;border-radius:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:3px;background:linear-gradient(135deg,#22d3ee,#a78bfa)}
 .logo-grid div{background:rgba(255,255,255,0.85);border-radius:2px}
-.logo h1{font-size:18px;font-weight:700;background:linear-gradient(135deg,#22d3ee,#a78bfa,#fb923c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo h1{font-size:18px;font-weight:700;background:linear-gradient(90deg,#22d3ee,#a78bfa,#fb923c,#f472b6,#22d3ee);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 4s linear infinite}
+@keyframes shimmer{to{background-position:200% center}}
 .logo p{font-size:10px;color:var(--text2)}
 .hdr-right{display:flex;align-items:center;gap:10px}
 
@@ -191,10 +192,20 @@ body.light .game-cell:active{background:#e2e8f0}
 .badge-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid #facc15;border-radius:12px;padding:12px 20px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:#facc15;box-shadow:0 8px 32px #00000040;z-index:250;animation:badgeIn .4s ease,badgeOut .4s ease 2.6s forwards}
 @keyframes badgeIn{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 @keyframes badgeOut{to{opacity:0;transform:translateX(-50%) translateY(20px)}}
-.badges-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.badge-item{padding:8px 14px;border-radius:10px;font-size:11px;font-family:'Space Mono',monospace;font-weight:600;display:flex;align-items:center;gap:6px}
-.badge-item.earned{background:#facc1515;border:1px solid #facc1530;color:#facc15}
-.badge-item.locked{background:var(--bg3);border:1px solid var(--border);color:var(--text3);opacity:.5}
+.badges-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px}
+.badge-item{position:relative;padding:12px;border-radius:12px;font-family:'Space Mono',monospace;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;transition:transform .15s,box-shadow .15s;cursor:default}
+.badge-item .badge-icon{font-size:28px;line-height:1}
+.badge-item .badge-name{font-size:12px;font-weight:700}
+.badge-item .badge-desc{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:10px;line-height:1.3;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;z-index:10;box-shadow:0 4px 12px #00000040}
+.badge-item:hover .badge-desc{opacity:1}
+.badge-item.earned{background:#facc1510;border:1px solid #facc1535;color:#facc15}
+.badge-item.earned:hover{transform:translateY(-2px);box-shadow:0 4px 16px #facc1520}
+.badge-item.earned .badge-icon{filter:none}
+.badge-item.earned .badge-desc{color:#facc15}
+.badge-item.locked{background:var(--bg3);border:1px solid var(--border);color:var(--text3)}
+.badge-item.locked .badge-icon{filter:grayscale(1);opacity:.4}
+.badge-item.locked .badge-name{opacity:.5}
+.badge-item.locked .badge-desc{color:var(--text2)}
 .game-result{text-align:center;padding:28px;background:var(--card);border:1px solid var(--border);border-radius:18px;max-width:380px;width:100%}
 .game-result .time{font-size:48px;font-weight:700;font-family:'Space Mono',monospace;margin:12px 0}
 .game-result .label{font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:1px}
@@ -242,7 +253,8 @@ body.light .game-cell:active{background:#e2e8f0}
         <button id="tab-dashboard" onclick="sv('dashboard')">📊 Dashboard</button>
         <button id="tab-play" onclick="sv('play')">🎮 Jouer</button>
         <button id="tab-entry" onclick="sv('entry')">✏️ Saisie</button>
-        <button id="tab-settings" onclick="sv('settings')">⚙️ Config</button>
+        <button id="tab-badges" onclick="sv('badges')">🏆 Badges</button>
+        <button id="tab-settings" onclick="sv('settings')">🧰 Plus</button>
       </div>
       <span id="sync-badge" class="sync"></span>
       <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="Thème clair/sombre">🌙</button>
@@ -496,6 +508,7 @@ function lev(){const ex=S.data.find(d=>d.date===S.ed);const e={};S.grids.forEach
 lev();
 
 let CH={};function dC(){Object.values(CH).forEach(c=>c.destroy());CH={}}
+function tgDs(chartKey,idx){const c=CH[chartKey];if(!c)return;const m=c.getDatasetMeta(idx);m.hidden=m.hidden===null?true:!m.hidden;c.update()}
 function CO(){const s=getComputedStyle(document.documentElement);const t2=s.getPropertyValue('--text2').trim()||'#64748b';const gl=s.getPropertyValue('--grid-line').trim()||'#1e293b';const gll=s.getPropertyValue('--grid-line-light').trim()||'#1e293b33';const ttbg=s.getPropertyValue('--chart-tooltip-bg').trim()||'#1e293b';const ttt=s.getPropertyValue('--chart-tooltip-text').trim()||'#e2e8f0';const ttb=s.getPropertyValue('--chart-tooltip-border').trim()||'#334155';return{responsive:true,maintainAspectRatio:false,animation:S._noAnim?false:{duration:400},layout:{padding:{bottom:10}},plugins:{legend:{labels:{color:t2,font:{size:11,family:"'Space Mono'"},usePointStyle:true,pointStyle:'circle',boxWidth:8,padding:14}},tooltip:{backgroundColor:ttbg,titleColor:ttt,bodyColor:ttt,borderColor:ttb,borderWidth:1,cornerRadius:10,padding:10}},scales:{x:{offset:true,ticks:{color:t2,font:{size:10,family:"'Space Mono'"},maxRotation:45,minRotation:25,autoSkip:true,autoSkipPadding:10},grid:{color:gll}},y:{ticks:{color:t2,font:{size:10,family:"'Space Mono'"}},grid:{color:gl}}}};}
 
 /* ═══ TAB SLIDER ═══ */
@@ -517,7 +530,7 @@ function R(){
   document.getElementById("hdr-sub").textContent=`${d.length} jours · ${ta} essais · ${g.length} grilles`;
   const app=document.getElementById("app");
   let h="";
-  if(S.view==="dashboard")h=rD();else if(S.view==="play")h=rG();else if(S.view==="entry")h=rE();else h=rS();
+  if(S.view==="dashboard")h=rD();else if(S.view==="play")h=rG();else if(S.view==="entry")h=rE();else if(S.view==="badges")h=rB();else h=rS();
   app.innerHTML=`<div class="${S._noAnim?'':'view-transition'}">${h}</div>`;
   requestAnimationFrame(()=>{updateSlider();applyTheme();if(S.view==="dashboard")iC();S._noAnim=false});
 }
@@ -570,7 +583,18 @@ function rD(){
 function iC(){
   const g=fg(),d=fdData();if(!d.length)return;const lb=d.map(x=>fd(x.date));
   const e1=document.getElementById("cA");
-  if(e1){const ds=[];g.forEach(gr=>{ds.push({label:gr.label,data:d.map(x=>(x[gr.key]?.length)?+av(x[gr.key]).toFixed(2):0),borderColor:gr.color,backgroundColor:gr.color+"30",fill:true,tension:.3,pointRadius:4,pointBackgroundColor:gr.color,borderWidth:2.5});if(d.length>=4){ds.push({label:gr.label+" MA7",data:ma7(d,gr.key),borderColor:gr.color,borderDash:[4,4],borderWidth:1.5,pointRadius:0,fill:false,tension:.4,isMA7:true,pointStyle:'line'})}});CH.a=new Chart(e1,{type:'line',data:{labels:lb,datasets:ds},options:(()=>{const o=CO();o.plugins.legend.labels.usePointStyle=true;o.plugins.legend.labels.boxWidth=8;o.plugins.legend.labels.padding=12;o.plugins.legend.maxWidth=9999;return o})()})}
+  if(e1){const ds=[];g.forEach(gr=>{ds.push({label:gr.label,data:d.map(x=>(x[gr.key]?.length)?+av(x[gr.key]).toFixed(2):0),borderColor:gr.color,backgroundColor:gr.color+"30",fill:true,tension:.3,pointRadius:4,pointBackgroundColor:gr.color,borderWidth:2.5});if(d.length>=4){ds.push({label:gr.label+" Moy. 7j",data:ma7(d,gr.key),borderColor:gr.color,borderDash:[4,4],borderWidth:1.5,pointRadius:0,fill:false,tension:.4,isMA7:true,pointStyle:'line'})}});CH.a=new Chart(e1,{type:'line',data:{labels:lb,datasets:ds},options:(()=>{const o=CO();o.plugins.legend.display=false;return o})()});
+  /* Custom grouped legend for averages chart */
+  let lgH='<div style="display:flex;justify-content:center;flex-wrap:wrap;gap:8px;padding:10px 0 2px">';
+  g.forEach((gr,gi)=>{
+    const baseIdx=gi*(d.length>=4?2:1);
+    lgH+=`<div style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:5px 10px;border-radius:8px;background:${gr.color}08;border:1px solid ${gr.color}20">`;
+    lgH+=`<div style="display:flex;align-items:center;gap:6px;cursor:pointer" onclick="tgDs('a',${baseIdx})"><span style="width:8px;height:8px;border-radius:50%;background:${gr.color};display:inline-block"></span><span style="font-size:11px;font-family:'Space Mono',monospace;color:${gr.color}">${gr.label}</span></div>`;
+    if(d.length>=4){lgH+=`<div style="display:flex;align-items:center;gap:6px;cursor:pointer" onclick="tgDs('a',${baseIdx+1})"><span style="width:8px;height:8px;border-radius:50%;border:2px solid ${gr.color};background:transparent;display:inline-block"></span><span style="font-size:10px;font-family:'Space Mono',monospace;color:var(--text2)">${gr.label} Moy. 7j</span></div>`}
+    lgH+='</div>';
+  });
+  lgH+='</div>';
+  e1.insertAdjacentHTML('afterend',lgH)}
   const e2=document.getElementById("cB");
   if(e2){CH.b=new Chart(e2,{type:'line',data:{labels:lb,datasets:g.map(gr=>({label:gr.label,data:d.map(x=>(x[gr.key]?.length)?+bt(x[gr.key]).toFixed(2):0),borderColor:gr.color,backgroundColor:gr.color,borderDash:[6,3],tension:.3,pointRadius:4,pointBackgroundColor:gr.color,borderWidth:2,fill:false}))},options:CO()})}
   const e3=document.getElementById("cP");
@@ -631,10 +655,7 @@ function rS(){
     <button class="export-btn" onclick="exportCSV()">📊 Export CSV</button>
   </div>`;
 
-  // Badges section
-  checkBadges();
-  const badgesHtml=renderBadges();
-  return `<div class="card"><h2>🏆 Badges</h2><p class="card-desc">Débloquez des badges en atteignant des objectifs d'entraînement.</p>${badgesHtml}</div><div class="card"><h2>🎯 Objectifs</h2><p class="card-desc">Fixez un temps cible par grille pour suivre votre progression vers vos objectifs.</p>${objHtml}</div><div class="card"><h2>🎛 Grilles configurées</h2><p class="card-desc">Gérez vos tailles de grille et le nombre d'essais par défaut pour chacune.</p>${gl}${af}</div><div class="card"><h2>📤 Exporter</h2><p class="card-desc">Téléchargez vos données pour les sauvegarder ou les analyser ailleurs.</p>${exportHtml}</div><div class="card"><h2>🔧 Données</h2><p class="card-desc">Réinitialise toutes vos données et grilles vers les valeurs d'origine (8 sessions du 2 au 9 février).</p>${rb}</div>`;
+  return `<div class="card"><h2>🎯 Objectifs</h2><p class="card-desc">Fixez un temps cible par grille pour suivre votre progression vers vos objectifs.</p>${objHtml}</div><div class="card"><h2>🎛 Grilles configurées</h2><p class="card-desc">Gérez vos tailles de grille et le nombre d'essais par défaut pour chacune.</p>${gl}${af}</div><div class="card"><h2>📤 Exporter</h2><p class="card-desc">Téléchargez vos données pour les sauvegarder ou les analyser ailleurs.</p>${exportHtml}</div><div class="card"><h2>🔧 Données</h2><p class="card-desc">Réinitialise toutes vos données et grilles vers les valeurs d'origine (8 sessions du 2 au 9 février).</p>${rb}</div>`;
 }
 
 /* ═══ GAME STATE ═══ */
@@ -832,7 +853,7 @@ function rG() {
   // Restart button (replaces start button)
   const restartBtn = `<button onclick="startGame()" style="margin-top:4px;padding:8px 24px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;transition:all .15s">↻ Restart</button>`;
 
-  const pbText = personalBest ? `<div style="text-align:center;font-size:12px;color:var(--text2);margin-top:-8px">Record ${n}×${n} : <span style="color:${gc};font-weight:700">${personalBest.toFixed(2)}s</span></div>` : '';
+  const pbText = personalBest ? `<div style="text-align:center;font-size:12px;color:var(--text2);margin-top:4px">Record ${n}×${n} : <span style="color:${gc};font-weight:700">${personalBest.toFixed(2)}s</span></div>` : '';
 
   return `<div class="game-wrap">${gameCountHTML}${sel}<div class="game-board-wrap">${statusHTML}${pbText}${board}${restartBtn}</div>${renderGameSession(gc)}</div>`;
 }
@@ -940,17 +961,73 @@ function launchConfetti(){
 }
 
 /* ═══ BADGES ═══ */
+const _sc=d=>{const ds=[...new Set(d.filter(x=>S.grids.some(g=>(x[g.key]?.length||0)>0)).map(x=>x.date))].sort();let mx=1,c=1;for(let i=1;i<ds.length;i++){const diff=(new Date(ds[i])-new Date(ds[i-1]))/(864e5);c=diff===1?c+1:1;mx=Math.max(mx,c)}return mx};
+const _tc=d=>d.reduce((s,x)=>s+S.grids.reduce((s2,g)=>s2+(x[g.key]?.length||0),0),0);
+const _dc=d=>d.filter(x=>S.grids.some(g=>(x[g.key]?.length||0)>0)).length;
+const _gc=d=>S.grids.filter(g=>d.some(x=>(x[g.key]?.length||0)>0)).length;
+const _imp=(d,pct)=>S.grids.some(g=>{const days=d.filter(x=>(x[g.key]?.length||0)>0);if(days.length<3)return false;return av(days[days.length-1][g.key])<av(days[0][g.key])*(1-pct/100)});
+const _dpd=d=>d.some(x=>S.grids.reduce((s,g)=>s+(x[g.key]?.length||0),0));
 const BADGES=[
-  {id:'first',icon:'🎯',name:'Premier pas',desc:'Compléter une grille',check:d=>d.some(x=>S.grids.some(g=>(x[g.key]?.length||0)>0))},
-  {id:'ten',icon:'🔟',name:'Dizaine',desc:'10 parties jouées',check:d=>d.reduce((s,x)=>s+S.grids.reduce((s2,g)=>s2+(x[g.key]?.length||0),0),0)>=10},
-  {id:'fifty',icon:'🏅',name:'Cinquante',desc:'50 parties jouées',check:d=>d.reduce((s,x)=>s+S.grids.reduce((s2,g)=>s2+(x[g.key]?.length||0),0),0)>=50},
-  {id:'hundred',icon:'💯',name:'Centurion',desc:'100 parties jouées',check:d=>d.reduce((s,x)=>s+S.grids.reduce((s2,g)=>s2+(x[g.key]?.length||0),0),0)>=100},
-  {id:'streak3',icon:'🔥',name:'Flamme',desc:'3 jours de suite',check:d=>{const ds=[...new Set(d.filter(x=>S.grids.some(g=>(x[g.key]?.length||0)>0)).map(x=>x.date))].sort();let mx=1,c=1;for(let i=1;i<ds.length;i++){const diff=(new Date(ds[i])-new Date(ds[i-1]))/(864e5);c=diff===1?c+1:1;mx=Math.max(mx,c)}return mx>=3}},
-  {id:'streak7',icon:'🔥',name:'Semaine de feu',desc:'7 jours de suite',check:d=>{const ds=[...new Set(d.filter(x=>S.grids.some(g=>(x[g.key]?.length||0)>0)).map(x=>x.date))].sort();let mx=1,c=1;for(let i=1;i<ds.length;i++){const diff=(new Date(ds[i])-new Date(ds[i-1]))/(864e5);c=diff===1?c+1:1;mx=Math.max(mx,c)}return mx>=7}},
-  {id:'multi3',icon:'🧩',name:'Polyvalent',desc:'Jouer 3 grilles différentes',check:d=>S.grids.filter(g=>d.some(x=>(x[g.key]?.length||0)>0)).length>=3},
-  {id:'sub3',icon:'⚡',name:'Éclair',desc:'Finir un 3×3 en moins de 3s',check:d=>d.some(x=>(x['3x3']||[]).some(t=>t<3))},
-  {id:'sub10',icon:'🚀',name:'Fusée',desc:'Finir un 4×4 en moins de 10s',check:d=>d.some(x=>(x['4x4']||[]).some(t=>t<10))},
-  {id:'sub30',icon:'💎',name:'Diamant',desc:'Finir un 5×5 en moins de 30s',check:d=>d.some(x=>(x['5x5']||[]).some(t=>t<30))},
+  // ── Parties jouées ──
+  {id:'first',cat:'parties',icon:'🎯',name:'Premier pas',desc:'Compléter une grille',check:d=>d.some(x=>S.grids.some(g=>(x[g.key]?.length||0)>0))},
+  {id:'ten',cat:'parties',icon:'🔟',name:'Dizaine',desc:'10 parties',check:d=>_tc(d)>=10},
+  {id:'fifty',cat:'parties',icon:'🏅',name:'Cinquante',desc:'50 parties',check:d=>_tc(d)>=50},
+  {id:'hundred',cat:'parties',icon:'💯',name:'Centurion',desc:'100 parties',check:d=>_tc(d)>=100},
+  {id:'twohundred',cat:'parties',icon:'🎖️',name:'Vétéran',desc:'200 parties',check:d=>_tc(d)>=200},
+  {id:'fivehundred',cat:'parties',icon:'👑',name:'Roi du Schulte',desc:'500 parties',check:d=>_tc(d)>=500},
+  {id:'thousand',cat:'parties',icon:'🏆',name:'Légende',desc:'1 000 parties',check:d=>_tc(d)>=1000},
+  {id:'twothousand',cat:'parties',icon:'🌠',name:'Étoile filante',desc:'2 000 parties',check:d=>_tc(d)>=2000},
+  {id:'fivek',cat:'parties',icon:'💎',name:'Diamant Éternel',desc:'5 000 parties',check:d=>_tc(d)>=5000},
+  {id:'tenk',cat:'parties',icon:'🪐',name:'Cosmique',desc:'10 000 parties',check:d=>_tc(d)>=10000},
+  // ── Séries (streaks) ──
+  {id:'streak3',cat:'series',icon:'🔥',name:'Flamme',desc:'3 jours de suite',check:d=>_sc(d)>=3},
+  {id:'streak7',cat:'series',icon:'🔥',name:'Semaine de feu',desc:'7 jours de suite',check:d=>_sc(d)>=7},
+  {id:'streak14',cat:'series',icon:'🌋',name:'Inferno',desc:'14 jours de suite',check:d=>_sc(d)>=14},
+  {id:'streak30',cat:'series',icon:'☄️',name:'Mois parfait',desc:'30 jours de suite',check:d=>_sc(d)>=30},
+  {id:'streak60',cat:'series',icon:'💫',name:'Immortel',desc:'60 jours de suite',check:d=>_sc(d)>=60},
+  {id:'streak100',cat:'series',icon:'🔱',name:'Indestructible',desc:'100 jours de suite',check:d=>_sc(d)>=100},
+  {id:'streak365',cat:'series',icon:'♾️',name:'Éternel',desc:'365 jours de suite',check:d=>_sc(d)>=365},
+  // ── Vitesse ──
+  {id:'sub3',cat:'vitesse',icon:'⚡',name:'Éclair',desc:'3×3 < 3s',check:d=>d.some(x=>(x['3x3']||[]).some(t=>t<3))},
+  {id:'sub2',cat:'vitesse',icon:'⚡',name:'Ultrason',desc:'3×3 < 2s',check:d=>d.some(x=>(x['3x3']||[]).some(t=>t<2))},
+  {id:'sub1_5',cat:'vitesse',icon:'🌩️',name:'Foudre',desc:'3×3 < 1.5s',check:d=>d.some(x=>(x['3x3']||[]).some(t=>t<1.5))},
+  {id:'sub10',cat:'vitesse',icon:'🚀',name:'Fusée',desc:'4×4 < 10s',check:d=>d.some(x=>(x['4x4']||[]).some(t=>t<10))},
+  {id:'sub5_4x4',cat:'vitesse',icon:'🔮',name:'Sorcier',desc:'4×4 < 5s',check:d=>d.some(x=>(x['4x4']||[]).some(t=>t<5))},
+  {id:'sub30',cat:'vitesse',icon:'💎',name:'Diamant',desc:'5×5 < 30s',check:d=>d.some(x=>(x['5x5']||[]).some(t=>t<30))},
+  {id:'sub20_5x5',cat:'vitesse',icon:'🛡️',name:'Titan',desc:'5×5 < 20s',check:d=>d.some(x=>(x['5x5']||[]).some(t=>t<20))},
+  {id:'sub60',cat:'vitesse',icon:'🐉',name:'Dragon',desc:'6×6 < 60s',check:d=>d.some(x=>(x['6x6']||[]).some(t=>t<60))},
+  {id:'sub45_6x6',cat:'vitesse',icon:'⚔️',name:'Gladiateur',desc:'6×6 < 45s',check:d=>d.some(x=>(x['6x6']||[]).some(t=>t<45))},
+  {id:'sub180',cat:'vitesse',icon:'🦅',name:'Aigle',desc:'7×7 < 3 min',check:d=>d.some(x=>(x['7x7']||[]).some(t=>t<180))},
+  {id:'sub120_7x7',cat:'vitesse',icon:'🗡️',name:'Samouraï',desc:'7×7 < 2 min',check:d=>d.some(x=>(x['7x7']||[]).some(t=>t<120))},
+  {id:'sub300_8x8',cat:'vitesse',icon:'🧊',name:'Iceberg',desc:'8×8 < 5 min',check:d=>d.some(x=>(x['8x8']||[]).some(t=>t<300))},
+  {id:'sub480_9x9',cat:'vitesse',icon:'🌪️',name:'Tornade',desc:'9×9 < 8 min',check:d=>d.some(x=>(x['9x9']||[]).some(t=>t<480))},
+  {id:'sub600_10x10',cat:'vitesse',icon:'🏔️',name:'Everest',desc:'10×10 < 10 min',check:d=>d.some(x=>(x['10x10']||[]).some(t=>t<600))},
+  // ── Exploration ──
+  {id:'multi3',cat:'explore',icon:'🧩',name:'Polyvalent',desc:'3 grilles différentes',check:d=>_gc(d)>=3},
+  {id:'multi5',cat:'explore',icon:'🌈',name:'Arc-en-ciel',desc:'5 grilles différentes',check:d=>_gc(d)>=5},
+  {id:'multi7',cat:'explore',icon:'🪶',name:'Explorateur',desc:'7 grilles différentes',check:d=>_gc(d)>=7},
+  {id:'big8',cat:'explore',icon:'🐘',name:'Éléphant',desc:'Compléter un 8×8',check:d=>d.some(x=>(x['8x8']?.length||0)>0)},
+  {id:'big9',cat:'explore',icon:'🦈',name:'Requin',desc:'Compléter un 9×9',check:d=>d.some(x=>(x['9x9']?.length||0)>0)},
+  {id:'big10',cat:'explore',icon:'🦁',name:'Lion',desc:'Compléter un 10×10',check:d=>d.some(x=>(x['10x10']?.length||0)>0)},
+  // ── Régularité ──
+  {id:'tenday',cat:'regularite',icon:'📅',name:'Habitué',desc:'10 jours joués',check:d=>_dc(d)>=10},
+  {id:'thirtyday',cat:'regularite',icon:'🗓️',name:'Dévoué',desc:'30 jours joués',check:d=>_dc(d)>=30},
+  {id:'hundredday',cat:'regularite',icon:'📆',name:'Centenaire',desc:'100 jours joués',check:d=>_dc(d)>=100},
+  {id:'twohundredday',cat:'regularite',icon:'🏛️',name:'Monument',desc:'200 jours joués',check:d=>_dc(d)>=200},
+  {id:'yearday',cat:'regularite',icon:'🌍',name:'Terrestre',desc:'365 jours joués',check:d=>_dc(d)>=365},
+  // ── Quotidien ──
+  {id:'sprint5',cat:'quotidien',icon:'💨',name:'Sprint',desc:'5 parties en 1 jour',check:d=>d.some(x=>S.grids.reduce((s,g)=>s+(x[g.key]?.length||0),0)>=5)},
+  {id:'sprint10',cat:'quotidien',icon:'🏇',name:'Cavalier',desc:'10 parties en 1 jour',check:d=>d.some(x=>S.grids.reduce((s,g)=>s+(x[g.key]?.length||0),0)>=10)},
+  {id:'marathon',cat:'quotidien',icon:'🏃',name:'Marathon',desc:'20 parties en 1 jour',check:d=>d.some(x=>S.grids.reduce((s,g)=>s+(x[g.key]?.length||0),0)>=20)},
+  {id:'ultramarathon',cat:'quotidien',icon:'🦾',name:'Ultra',desc:'50 parties en 1 jour',check:d=>d.some(x=>S.grids.reduce((s,g)=>s+(x[g.key]?.length||0),0)>=50)},
+  {id:'perfectday',cat:'quotidien',icon:'🌟',name:'Jour parfait',desc:'Battre son record',check:d=>{return S.grids.some(g=>{const all=d.flatMap(x=>x[g.key]||[]);if(all.length<2)return false;const best=Math.min(...all);const lastDay=d[d.length-1][g.key]||[];return lastDay.some(t=>t===best)})}},
+  // ── Progression ──
+  {id:'improve20',cat:'progression',icon:'📈',name:'Progression',desc:'Moyenne améliorée de 20%',check:d=>_imp(d,20)},
+  {id:'improve50',cat:'progression',icon:'🚀',name:'Décollage',desc:'Moyenne améliorée de 50%',check:d=>_imp(d,50)},
+  {id:'improve75',cat:'progression',icon:'🧬',name:'Mutation',desc:'Moyenne améliorée de 75%',check:d=>_imp(d,75)},
+  {id:'consistent',cat:'progression',icon:'🎯',name:'Précision',desc:'Écart-type < 0.5s (3×3)',check:d=>d.some(x=>{const v=x['3x3']||[];return v.length>=3&&sd(v)<0.5})},
+  {id:'laser',cat:'progression',icon:'🔬',name:'Laser',desc:'Écart-type < 1s (4×4)',check:d=>d.some(x=>{const v=x['4x4']||[];return v.length>=3&&sd(v)<1})},
+  {id:'zen',cat:'progression',icon:'🧘',name:'Zen',desc:'Écart-type < 2s (5×5)',check:d=>d.some(x=>{const v=x['5x5']||[];return v.length>=3&&sd(v)<2})},
 ];
 if(!S.earnedBadges)S.earnedBadges=[];
 
@@ -969,13 +1046,46 @@ function showBadgeToast(b){
   document.body.appendChild(el);
   setTimeout(()=>el.remove(),3200);
 }
+function rB(){
+  checkBadges();
+  const earnedCount=BADGES.filter(b=>S.earnedBadges.includes(b.id)).length;
+  const pct=Math.round(earnedCount/BADGES.length*100);
+  let h=`<div class="card"><h2>🏆 Badges</h2><p class="card-desc">Débloquez des badges en atteignant des objectifs d'entraînement.</p>`;
+  h+=`<div style="display:flex;align-items:center;gap:12px;margin:12px 0 16px"><div style="flex:1;height:8px;border-radius:4px;background:var(--bg3);overflow:hidden"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#facc15,#f97316);border-radius:4px;transition:width .4s"></div></div><span style="font-size:13px;font-family:'Space Mono',monospace;color:#facc15;font-weight:700">${pct}%</span></div>`;
+  h+=renderBadges();
+  h+='</div>';
+  return h;
+}
 function renderBadges(){
-  let h='<div class="badges-grid">';
-  BADGES.forEach(b=>{
-    const earned=S.earnedBadges.includes(b.id);
-    h+=`<div class="badge-item ${earned?'earned':'locked'}" title="${b.desc}"><span style="font-size:16px">${b.icon}</span>${b.name}</div>`;
-  });
-  return h+'</div>';
+  const catNames={parties:'🎮 Parties',series:'🔥 Séries',vitesse:'⚡ Vitesse',explore:'🧭 Exploration',regularite:'📅 Régularité',quotidien:'💨 Quotidien',progression:'📈 Progression'};
+  const cats=['parties','series','vitesse','explore','regularite','quotidien','progression'];
+  const earnedList=BADGES.filter(b=>S.earnedBadges.includes(b.id));
+  const lockedList=BADGES.filter(b=>!S.earnedBadges.includes(b.id));
+  let h=`<h3 style="font-size:14px;color:#facc15;margin:16px 0 8px;font-family:'Space Mono',monospace">✅ Débloqués (${earnedList.length}/${BADGES.length})</h3>`;
+  if(earnedList.length){
+    cats.forEach(cat=>{
+      const items=earnedList.filter(b=>b.cat===cat);
+      if(!items.length)return;
+      h+=`<div style="font-size:11px;color:var(--text2);margin:12px 0 6px;font-family:'Space Mono',monospace">${catNames[cat]}</div>`;
+      h+='<div class="badges-grid">';
+      items.forEach(b=>{h+=`<div class="badge-item earned"><span class="badge-icon">${b.icon}</span><span class="badge-name">${b.name}</span><span class="badge-desc">${b.desc}</span></div>`});
+      h+='</div>';
+    });
+  } else {
+    h+='<p style="font-size:12px;color:var(--text3);margin:8px 0">Aucun badge débloqué pour le moment.</p>';
+  }
+  h+=`<h3 style="font-size:14px;color:var(--text3);margin:20px 0 8px;font-family:'Space Mono',monospace">🔒 Verrouillés (${lockedList.length})</h3>`;
+  if(lockedList.length){
+    cats.forEach(cat=>{
+      const items=lockedList.filter(b=>b.cat===cat);
+      if(!items.length)return;
+      h+=`<div style="font-size:11px;color:var(--text3);margin:12px 0 6px;font-family:'Space Mono',monospace">${catNames[cat]}</div>`;
+      h+='<div class="badges-grid">';
+      items.forEach(b=>{h+=`<div class="badge-item locked"><span class="badge-icon">🔒</span><span class="badge-name">${b.name}</span><span class="badge-desc">${b.desc}</span></div>`});
+      h+='</div>';
+    });
+  }
+  return h;
 }
 </script>
 </body>
