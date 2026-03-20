@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Schulte Tracker</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◧</text></svg>">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#22d3ee">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <!-- Firebase SDKs -->
@@ -130,6 +134,12 @@ body.light ::-webkit-scrollbar-track{background:#f1f5f9}
 body.light ::-webkit-scrollbar-thumb{background:#cbd5e1}
 body.light .game-cell{background:#ffffff;border-color:#cbd5e1}
 body.light .game-cell:active{background:#e2e8f0}
+body.light .badge-item.earned{background:#fef9c320;border-color:#facc1550}
+body.light .badge-item.locked{background:#f8fafc;border-color:#e2e8f0}
+body.light .lb-row:nth-child(odd){background:#f1f5f9}
+body.light .wk-card{background:#f8fafc!important}
+body.light .countdown-overlay{background:rgba(255,255,255,0.85)}
+body.light .badge-unlock{background:rgba(255,255,255,0.9)}
 .theme-btn{background:none;border:1px solid var(--border);border-radius:7px;padding:4px 8px;cursor:pointer;font-size:14px;line-height:1;transition:all .15s}
 
 /* ═══ VIEW TRANSITIONS ═══ */
@@ -228,6 +238,38 @@ body.light .game-cell:active{background:#e2e8f0}
 .game-session .times span{padding:4px 10px;border-radius:7px;font-size:12px;font-family:'Space Mono',monospace;font-weight:600}
 .game-count{font-size:11px;color:var(--text2);padding:5px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px;cursor:default;align-self:flex-end;white-space:pre-line;position:relative}
 .game-count:hover{color:var(--text);border-color:var(--border2)}
+
+/* ═══ COUNTDOWN ═══ */
+.countdown-overlay{position:fixed;inset:0;z-index:150;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.countdown-num{font-size:120px;font-weight:800;font-family:'Space Mono',monospace;color:#22d3ee;animation:cdPop .7s ease;text-shadow:0 0 60px #22d3ee60}
+@keyframes cdPop{0%{transform:scale(2);opacity:0}40%{transform:scale(1);opacity:1}100%{opacity:0;transform:scale(.7)}}
+
+/* ═══ SPARKLINE ═══ */
+.sparkline{display:inline-block;vertical-align:middle;margin-left:8px}
+
+/* ═══ BADGE UNLOCK ANIMATION ═══ */
+.badge-unlock{position:fixed;inset:0;z-index:250;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;animation:buFadeIn .3s ease}
+.badge-unlock-card{text-align:center;padding:40px;border-radius:20px;background:var(--card);border:2px solid #facc15;box-shadow:0 0 80px #facc1540;animation:buScale .5s cubic-bezier(.34,1.56,.64,1)}
+.badge-unlock-card .bu-icon{font-size:64px;margin-bottom:12px;animation:buBounce .6s ease .3s both}
+.badge-unlock-card .bu-title{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:#facc15;margin-bottom:8px}
+.badge-unlock-card .bu-name{font-size:22px;font-weight:800;color:#facc15;margin-bottom:6px}
+.badge-unlock-card .bu-desc{font-size:13px;color:var(--text2)}
+@keyframes buFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes buScale{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes buBounce{0%{transform:scale(0) rotate(-20deg)}60%{transform:scale(1.3) rotate(5deg)}100%{transform:scale(1) rotate(0)}}
+
+/* ═══ LEADERBOARD ═══ */
+.lb-row{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;font-family:'Space Mono',monospace;font-size:12px}
+.lb-row:nth-child(odd){background:var(--bg3)}
+.lb-rank{width:24px;text-align:center;font-weight:700;color:var(--text2)}
+.lb-rank.gold{color:#facc15}.lb-rank.silver{color:#94a3b8}.lb-rank.bronze{color:#cd7f32}
+
+/* ═══ WEEK COMPARE ═══ */
+.wk-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.wk-card{padding:14px;border-radius:10px;text-align:center}
+.wk-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:4px}
+.wk-val{font-size:20px;font-weight:700;font-family:'Space Mono',monospace}
+.wk-diff{font-size:11px;margin-top:4px;font-weight:600}
 </style>
 </head>
 <body>
@@ -395,7 +437,7 @@ const sd=a=>{if(a.length<2)return 0;const m=av(a);return Math.sqrt(a.reduce((s,v
 const fd=i=>new Date(i+"T12:00:00").toLocaleDateString("fr-FR",{day:"numeric",month:"short"});
 const ti=()=>new Date().toISOString().slice(0,10);
 
-let S={data:ID,grids:DG,view:"dashboard",ed:ti(),ev:{},sf:"all",bf:"all",cd:null,cdg:null,cr:0,sag:false,ngs:"",nga:"3",dr:"all",drFrom:null,drTo:null,calOpen:false,calMonth:new Date().getMonth(),calYear:new Date().getFullYear(),theme:localStorage.getItem('st-theme')||'dark',objectives:JSON.parse(localStorage.getItem('st-obj')||'{}')};
+let S={data:ID,grids:DG,view:"dashboard",ed:ti(),ev:{},sf:"all",bf:"all",cd:null,cdg:null,cr:0,sag:false,ngs:"",nga:"3",dr:"all",drFrom:null,drTo:null,calOpen:false,calMonth:new Date().getMonth(),calYear:new Date().getFullYear(),theme:localStorage.getItem('st-theme')||'dark',objectives:JSON.parse(localStorage.getItem('st-obj')||'{}'),zenMode:false};
 function ps(){ saveToFirestore(); }
 
 /* ═══ THEME ═══ */
@@ -577,7 +619,7 @@ function R(){
   if(S.view==="dashboard")h=rD();else if(S.view==="play")h=rG();else if(S.view==="entry")h=rE();else if(S.view==="badges")h=rB();else h=rS();
   const _ac=S._noAnim?'':(S._slideDir==='left'?'view-slide-left':S._slideDir==='right'?'view-slide-right':'view-transition');
   app.innerHTML=`<div class="${_ac}">${h}</div>`;S._slideDir=null;
-  requestAnimationFrame(()=>{updateSlider();applyTheme();if(S.view==="dashboard")iC();S._noAnim=false});
+  requestAnimationFrame(()=>{updateSlider();applyTheme();if(S.view==="dashboard"){iC();animateCounters()}S._noAnim=false});
 }
 
 /* ═══ DASHBOARD ═══ */
@@ -601,10 +643,12 @@ function rD(){
   // Find previous day with data for this grid
   const lIdx=d.indexOf(lEntry);const prevEntry=lIdx>0?[...d].slice(0,lIdx).reverse().find(x=>x[gr.key]?.length):null;const pa=prevEntry?av(prevEntry[gr.key]):null;
   const c=(a&&pa)?((a-pa)/pa*100):null;
-  h+=`<div class="stat" style="background:linear-gradient(135deg,${gr.color}10,${gr.color}05);border:1px solid ${gr.color}30"><div class="stat-label">◧ ${gr.label} Moy.</div><div class="stat-value" style="color:${gr.color}">${a?a.toFixed(2):"—"}<span style="font-size:13px;color:var(--text2);margin-left:3px">${a?"s":""}</span></div>${c!=null?`<div class="stat-change" style="color:${c<=0?"#34d399":"#f87171"}">${c<=0?"▼":"▲"} ${Math.abs(c).toFixed(1)}% vs veille</div>`:""}</div>`});
+  // Sparkline: last 7 day averages
+  const spk=d.slice(-7).map(x=>(x[gr.key]?.length)?av(x[gr.key]):null).filter(x=>x!==null);
+  h+=`<div class="stat" style="background:linear-gradient(135deg,${gr.color}10,${gr.color}05);border:1px solid ${gr.color}30"><div class="stat-label">◧ ${gr.label} Moy.${sparkSVG(spk,gr.color)}</div><div class="stat-value" style="color:${gr.color}">${a?`<span data-counter="${a.toFixed(2)}" data-dec="2" data-suffix=""></span>`:"—"}<span style="font-size:13px;color:var(--text2);margin-left:3px">${a?"s":""}</span></div>${c!=null?`<div class="stat-change" style="color:${c<=0?"#34d399":"#f87171"}">${c<=0?"▼":"▲"} ${Math.abs(c).toFixed(1)}% vs veille</div>`:""}</div>`});
   h+='</div><div class="stat-row">';
   g.forEach(gr=>{const av2=d.flatMap(x=>x[gr.key]||[]);const b=av2.length?Math.min(...av2):null;
-  h+=`<div class="stat" style="background:linear-gradient(135deg,${gr.color}10,${gr.color}05);border:1px solid ${gr.color}30"><div class="stat-label">⚡ Record ${gr.label}</div><div class="stat-value" style="color:${gr.color}">${b?b.toFixed(2):"—"}<span style="font-size:13px;color:var(--text2);margin-left:3px">${b?"s":""}</span></div></div>`});
+  h+=`<div class="stat" style="background:linear-gradient(135deg,${gr.color}10,${gr.color}05);border:1px solid ${gr.color}30"><div class="stat-label">⚡ Record ${gr.label}</div><div class="stat-value" style="color:${gr.color}">${b?`<span data-counter="${b.toFixed(2)}" data-dec="2"></span>`:"—"}<span style="font-size:13px;color:var(--text2);margin-left:3px">${b?"s":""}</span></div></div>`});
   h+='</div>';
   h+=`<div class="card"><h2>📉 Moyennes par session</h2><p class="card-desc">Évolution de votre temps moyen sur l'ensemble des essais de chaque session. Une courbe qui descend = vous progressez. Les pointillés représentent la moyenne mobile sur 7 jours.</p><div class="chart-box"><canvas id="cA"></canvas></div></div>`;
   h+=`<div class="card"><h2>⚡ Meilleurs temps</h2><p class="card-desc">Votre meilleur essai de chaque jour. Reflète votre pic de performance — un bon indicateur de votre potentiel réel.</p><div class="chart-box"><canvas id="cB"></canvas></div></div>`;
@@ -622,6 +666,12 @@ function rD(){
   hm+=`<p style="font-size:9px;color:var(--text2);margin-top:6px;text-align:center">Record : <span style="color:${gr.color};font-weight:700">${mn.toFixed(2)}s</span></p></div>`});
   hm+='</div>';
   h+=`<div class="card"><h2>🔬 Tous les essais</h2><p class="card-desc">Carte thermique de chaque essai. Plus la case est vive, meilleur est le temps. Le record absolu est encadré.</p>${hm}</div>`;
+  // Week comparison
+  const wkH=renderWeekCompare();
+  if(wkH)h+=`<div class="card"><h2>📅 Semaine vs Semaine</h2><p class="card-desc">Comparaison de votre activité cette semaine par rapport à la semaine dernière.</p>${wkH}</div>`;
+  // Leaderboard
+  let lbH='';g.forEach(gr=>{lbH+=renderLeaderboard(gr.key,gr.color,gr.label)});
+  if(lbH)h+=`<div class="card"><h2>🏅 Classement personnel</h2><p class="card-desc">Vos 10 meilleurs temps pour chaque grille. Visez la première place !</p>${lbH}</div>`;
   h+=`<div style="text-align:center;padding:14px 0 0;color:var(--text2);font-size:11px">Dernière session : ${fd(d[d.length-1].date)} · <span style="color:#34d399;font-weight:600">En progression 🚀</span></div>`;
   return h;
 }
@@ -926,7 +976,7 @@ function rG() {
   // Chrono bar above the grid
   board += `<div style="display:flex;justify-content:space-between;align-items:baseline;padding:0 2px 6px;font-family:'Space Mono',monospace">`;
   board += `<span style="font-size:13px;color:var(--text2)">Next: <span id="game-next-num" style="color:#22d3ee;font-weight:700">${GM.state==='ready'?1:GM.next<=GM.total?GM.next:'✓'}</span></span>`;
-  board += `<span id="game-timer" style="font-size:13px;color:var(--text2);font-weight:600">${GM.state==='playing'?'0.00':'0.00'}</span>`;
+  board += `<span id="game-timer" style="font-size:13px;color:var(--text2);font-weight:600;${S.zenMode?'visibility:hidden':''}">${GM.state==='playing'?'0.00':'0.00'}</span>`;
   board += `</div>`;
   board += `<div class="game-board" style="grid-template-columns:repeat(${n},1fr);gap:0;">`;
   GM.board.forEach(num => {
@@ -935,11 +985,12 @@ function rG() {
   board += '</div></div>';
 
   // Restart button (replaces start button)
-  const restartBtn = `<button onclick="startGame()" style="margin-top:4px;padding:8px 24px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;transition:all .15s">↻ Restart</button>`;
+  const restartBtn = `<div style="display:flex;gap:8px;margin-top:4px;justify-content:center;flex-wrap:wrap"><button onclick="startCountdown()" style="padding:8px 24px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;transition:all .15s">↻ Restart</button><button id="zen-toggle" onclick="S.zenMode=!S.zenMode;R()" style="padding:8px 14px;border-radius:8px;border:1px solid ${S.zenMode?'#a78bfa30':'var(--border)'};background:${S.zenMode?'#a78bfa15':'transparent'};color:${S.zenMode?'#a78bfa':'var(--text2)'};font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600">${S.zenMode?'🧘 Zen ON':'🧘 Zen'}</button></div>`;
 
   const pbText = personalBest ? `<div style="text-align:center;font-size:12px;color:var(--text2);margin-top:4px">Record ${n}×${n} : <span style="color:${gc};font-weight:700">${personalBest.toFixed(2)}s</span></div>` : '';
 
-  return `<div class="game-wrap">${gameCountHTML}${sel}<div class="game-board-wrap">${statusHTML}${pbText}${board}${restartBtn}</div>${renderGameSession(gc)}</div>`;
+  const kbHints=`<div style="text-align:center;margin-top:8px;font-size:10px;color:var(--text3)">⌨️ Espace = restart · Échap = retour · Z = zen</div>`;
+  return `<div class="game-wrap">${gameCountHTML}${sel}<div class="game-board-wrap">${statusHTML}${pbText}${board}${restartBtn}</div>${renderGameSession(gc)}${kbHints}</div>`;
 }
 
 function renderGameSession(gc) {
@@ -1133,10 +1184,7 @@ function checkBadges(){
   if(newBadge)showBadgeToast(newBadge);
 }
 function showBadgeToast(b){
-  const el=document.createElement('div');el.className='badge-toast';
-  el.innerHTML=`<span style="font-size:20px">${b.icon}</span><span>${b.name} — ${b.desc}</span>`;
-  document.body.appendChild(el);
-  setTimeout(()=>el.remove(),3200);
+  showBadgeUnlock(b);
 }
 function rB(){
   checkBadges();
@@ -1149,10 +1197,139 @@ function rB(){
   bf+=`</div>`;
   let h=`<div class="card"><h2>🏆 Badges</h2><p class="card-desc">Débloquez des badges en atteignant des objectifs d'entraînement.</p>${bf}`;
   h+=`<div style="display:flex;align-items:center;gap:12px;margin:12px 0 16px"><div style="flex:1;height:8px;border-radius:4px;background:var(--bg3);overflow:hidden"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#facc15,#f97316);border-radius:4px;transition:width .4s"></div></div><span style="font-size:13px;font-family:'Space Mono',monospace;color:#facc15;font-weight:700">${earnedCount}/${filtered.length} · ${pct}%</span></div>`;
+  // Category progress bars
+  const catNames2={parties:'🎮 Parties',series:'🔥 Séries',vitesse:'⚡ Vitesse',explore:'🧭 Exploration',regularite:'📅 Régularité',quotidien:'💨 Quotidien',progression:'📈 Progression',secret:'🔮 Secrets'};
+  h+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:16px">';
+  ['parties','series','vitesse','explore','regularite','quotidien','progression','secret'].forEach(cat=>{
+    const catBadges=filtered.filter(b=>b.cat===cat);if(!catBadges.length)return;
+    const catEarned=catBadges.filter(b=>S.earnedBadges.includes(b.id)).length;
+    const catPct=Math.round(catEarned/catBadges.length*100);
+    h+=`<div style="padding:8px 12px;border-radius:8px;background:var(--bg3);border:1px solid var(--border)"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:10px;color:var(--text2)">${catNames2[cat]}</span><span style="font-size:10px;font-family:'Space Mono',monospace;color:${catPct>=100?'#34d399':'#facc15'}">${catEarned}/${catBadges.length}</span></div><div style="height:4px;border-radius:2px;background:var(--border);overflow:hidden"><div style="height:100%;width:${catPct}%;background:${catPct>=100?'#34d399':'linear-gradient(90deg,#facc15,#f97316)'};border-radius:2px;transition:width .4s"></div></div></div>`;
+  });
+  h+='</div>';
   h+=renderBadges(filtered);
   h+='</div>';
   return h;
 }
+/* ═══ SPARKLINE ═══ */
+function sparkSVG(vals,color,w=60,h=20){
+  if(!vals.length)return'';
+  const mn=Math.min(...vals),mx=Math.max(...vals),range=mx-mn||1;
+  const pts=vals.map((v,i)=>`${(i/(vals.length-1))*w},${h-((v-mn)/range)*h}`).join(' ');
+  return`<svg class="sparkline" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+
+/* ═══ ANIMATED COUNTERS ═══ */
+function animateCounters(){
+  document.querySelectorAll('[data-counter]').forEach(el=>{
+    const target=parseFloat(el.dataset.counter);const dec=el.dataset.dec?parseInt(el.dataset.dec):2;
+    const suffix=el.dataset.suffix||'';
+    let start=0;const dur=600;const t0=performance.now();
+    function tick(now){
+      const p=Math.min(1,(now-t0)/dur);
+      const ease=1-Math.pow(1-p,3);
+      el.textContent=(start+(target-start)*ease).toFixed(dec)+suffix;
+      if(p<1)requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
+/* ═══ LEADERBOARD ═══ */
+function renderLeaderboard(gridKey,color,label){
+  const allV=[];
+  S.data.forEach(d=>{(d[gridKey]||[]).forEach(t=>allV.push({time:t,date:d.date}))});
+  if(!allV.length)return'';
+  allV.sort((a,b)=>a.time-b.time);
+  const top=allV.slice(0,10);
+  let h=`<div style="margin-top:10px"><h4 style="font-size:12px;color:${color};font-family:'Space Mono',monospace;margin-bottom:6px">🏅 Top 10 — ${label}</h4>`;
+  top.forEach((t,i)=>{
+    const rc=i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+    h+=`<div class="lb-row"><span class="lb-rank ${rc}">${medal||'#'+(i+1)}</span><span style="color:${color};font-weight:700;flex:1">${t.time.toFixed(2)}s</span><span style="color:var(--text2);font-size:10px">${fd(t.date)}</span></div>`;
+  });
+  h+='</div>';
+  return h;
+}
+
+/* ═══ WEEK COMPARISON ═══ */
+function renderWeekCompare(){
+  const today=new Date();const g=fg();
+  const thisWeekStart=new Date(today);thisWeekStart.setDate(today.getDate()-today.getDay()+1);
+  const lastWeekStart=new Date(thisWeekStart);lastWeekStart.setDate(lastWeekStart.getDate()-7);
+  const tw=thisWeekStart.toISOString().slice(0,10);const lw=lastWeekStart.toISOString().slice(0,10);const twe=today.toISOString().slice(0,10);
+  const lwe=new Date(thisWeekStart);lwe.setDate(lwe.getDate()-1);const lwes=lwe.toISOString().slice(0,10);
+  const thisW=S.data.filter(d=>d.date>=tw&&d.date<=twe);
+  const lastW=S.data.filter(d=>d.date>=lw&&d.date<=lwes);
+  if(!thisW.length&&!lastW.length)return'';
+  const twCount=thisW.reduce((s,d)=>s+g.reduce((s2,gr)=>s2+(d[gr.key]?.length||0),0),0);
+  const lwCount=lastW.reduce((s,d)=>s+g.reduce((s2,gr)=>s2+(d[gr.key]?.length||0),0),0);
+  const twAvgs=g.map(gr=>{const v=thisW.flatMap(d=>d[gr.key]||[]);return v.length?av(v):null}).filter(x=>x!==null);
+  const lwAvgs=g.map(gr=>{const v=lastW.flatMap(d=>d[gr.key]||[]);return v.length?av(v):null}).filter(x=>x!==null);
+  const twAvg=twAvgs.length?av(twAvgs):null;const lwAvg=lwAvgs.length?av(lwAvgs):null;
+  const twDays=thisW.filter(d=>g.some(gr=>(d[gr.key]?.length||0)>0)).length;
+  const lwDays=lastW.filter(d=>g.some(gr=>(d[gr.key]?.length||0)>0)).length;
+  const diffC=lwCount?((twCount-lwCount)/lwCount*100).toFixed(0):null;
+  const diffA=(twAvg&&lwAvg)?((twAvg-lwAvg)/lwAvg*100).toFixed(1):null;
+  let h='<div class="wk-grid">';
+  h+=`<div class="wk-card" style="background:var(--bg3);border:1px solid var(--border)"><div class="wk-label">Cette semaine</div><div class="wk-val" style="color:#22d3ee">${twCount} <span style="font-size:11px;color:var(--text2)">parties</span></div><div style="font-size:10px;color:var(--text2)">${twDays} jours</div></div>`;
+  h+=`<div class="wk-card" style="background:var(--bg3);border:1px solid var(--border)"><div class="wk-label">Semaine dernière</div><div class="wk-val" style="color:var(--text4)">${lwCount} <span style="font-size:11px;color:var(--text2)">parties</span></div><div style="font-size:10px;color:var(--text2)">${lwDays} jours</div></div>`;
+  if(twAvg!==null){h+=`<div class="wk-card" style="background:var(--bg3);border:1px solid var(--border)"><div class="wk-label">Moy. cette sem.</div><div class="wk-val" style="color:#34d399">${twAvg.toFixed(2)}s</div>${diffA!==null?`<div class="wk-diff" style="color:${parseFloat(diffA)<=0?'#34d399':'#f87171'}">${parseFloat(diffA)<=0?'▼':'▲'} ${Math.abs(parseFloat(diffA))}%</div>`:''}</div>`}
+  if(lwAvg!==null){h+=`<div class="wk-card" style="background:var(--bg3);border:1px solid var(--border)"><div class="wk-label">Moy. sem. dern.</div><div class="wk-val" style="color:var(--text4)">${lwAvg.toFixed(2)}s</div></div>`}
+  h+='</div>';
+  if(diffC!==null){
+    const better=parseInt(diffC)>0;
+    h+=`<div style="text-align:center;margin-top:10px;font-size:12px;color:${better?'#34d399':'#f87171'};font-weight:600">${better?'▲':'▼'} ${Math.abs(parseInt(diffC))}% de parties ${better?'en plus':'en moins'} que la semaine dernière</div>`;
+  }
+  return h;
+}
+
+/* ═══ COUNTDOWN ═══ */
+function startCountdown(){
+  let count=3;
+  const overlay=document.createElement('div');overlay.className='countdown-overlay';overlay.id='cd-overlay';
+  overlay.innerHTML=`<span class="countdown-num">${count}</span>`;
+  document.body.appendChild(overlay);
+  const iv=setInterval(()=>{
+    count--;
+    if(count>0){overlay.innerHTML=`<span class="countdown-num">${count}</span>`}
+    else{clearInterval(iv);overlay.remove();GM.board=shuffleArray(GM.total);GM.next=1;GM.state='ready';GM.result=null;GM.startTime=0;GM.elapsed=0;R()}
+  },700);
+}
+
+/* ═══ BADGE UNLOCK FULL-SCREEN ═══ */
+function showBadgeUnlock(b){
+  const el=document.createElement('div');el.className='badge-unlock';el.onclick=()=>el.remove();
+  el.innerHTML=`<div class="badge-unlock-card"><div class="bu-icon">${b.icon}</div><div class="bu-title">Badge débloqué !</div><div class="bu-name">${b.name}</div><div class="bu-desc">${b.desc}</div><div style="margin-top:16px;font-size:11px;color:var(--text3)">Cliquez pour fermer</div></div>`;
+  document.body.appendChild(el);
+  launchConfetti();
+  setTimeout(()=>{if(el.parentNode)el.remove()},4000);
+}
+
+/* ═══ KEYBOARD SHORTCUTS ═══ */
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+  if(e.key===' '&&S.view==='play'){e.preventDefault();if(GM.state==='done')gameSaveResult();else startCountdown()}
+  if(e.key==='Escape'){if(S.view==='play'&&GM.state==='playing'){stopGameTimer();GM.state='idle';R()}else if(S.view!=='dashboard')sv('dashboard')}
+  if(e.key==='z'&&S.view==='play'){S.zenMode=!S.zenMode;const t=document.getElementById('game-timer');if(t)t.style.visibility=S.zenMode?'hidden':'visible';const z=document.getElementById('zen-toggle');if(z)z.textContent=S.zenMode?'🧘 Zen ON':'🧘 Zen'}
+});
+
+/* ═══ SWIPE BETWEEN TABS ═══ */
+let _swX=0,_swY=0,_swiping=false;
+document.addEventListener('touchstart',e=>{_swX=e.touches[0].clientX;_swY=e.touches[0].clientY;_swiping=true},{passive:true});
+document.addEventListener('touchend',e=>{
+  if(!_swiping)return;_swiping=false;
+  const dx=e.changedTouches[0].clientX-_swX;const dy=e.changedTouches[0].clientY-_swY;
+  if(Math.abs(dx)<60||Math.abs(dy)>Math.abs(dx)*0.7)return;
+  const tabs=['dashboard','play','entry','badges','settings'];
+  const ci=tabs.indexOf(S.view);
+  if(dx<-60&&ci<tabs.length-1)sv(tabs[ci+1]);
+  else if(dx>60&&ci>0)sv(tabs[ci-1]);
+},{passive:true});
+
+/* ═══ PWA SERVICE WORKER ═══ */
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+
 function renderBadges(badgeList){
   const bl=badgeList||BADGES;
   const catNames={parties:'🎮 Parties',series:'🔥 Séries',vitesse:'⚡ Vitesse',explore:'🧭 Exploration',regularite:'📅 Régularité',quotidien:'💨 Quotidien',progression:'📈 Progression',secret:'🔮 Secrets'};
