@@ -104,7 +104,9 @@ h2{font-size:15px;font-weight:600;margin-bottom:4px}
 .hm-r{display:flex;align-items:center;gap:5px;margin-bottom:3px}
 .hm-d{font-size:9px;color:var(--text2);width:38px;text-align:right;font-family:'Space Mono',monospace;flex-shrink:0}
 .hm-cs{display:flex;gap:2px;flex:1}
-.hm-c{flex:1;height:22px;border-radius:4px;max-width:52px;display:flex;align-items:center;justify-content:center;font-size:9px;font-family:'Space Mono',monospace;cursor:default}
+.hm-c{position:relative;flex:1;height:22px;border-radius:4px;max-width:52px;display:flex;align-items:center;justify-content:center;font-size:9px;font-family:'Space Mono',monospace;cursor:default}
+.hm-c .hm-tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--card);color:var(--text1);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:9px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:20;box-shadow:0 2px 8px #00000040}
+.hm-c:hover .hm-tip{opacity:1}
 .inp{padding:7px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-family:'Space Mono',monospace;outline:none;width:72px;transition:border-color .2s}
 .sbtn{padding:11px 28px;border-radius:10px;border:none;cursor:pointer;background:linear-gradient(135deg,#22d3ee,#a78bfa);color:#fff;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;box-shadow:0 4px 20px #22d3ee40}
 .si{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-radius:8px;cursor:pointer;border:1px solid transparent;transition:all .15s}
@@ -133,6 +135,10 @@ body.light .game-cell:active{background:#e2e8f0}
 /* ═══ VIEW TRANSITIONS ═══ */
 .view-transition{animation:viewIn .25s ease}
 @keyframes viewIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.view-slide-left{animation:slideL .25s ease}
+.view-slide-right{animation:slideR .25s ease}
+@keyframes slideL{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideR{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:translateX(0)}}
 
 /* ═══ STREAK ═══ */
 .streak-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:10px;font-size:13px;font-weight:700;font-family:'Space Mono',monospace}
@@ -389,7 +395,7 @@ const sd=a=>{if(a.length<2)return 0;const m=av(a);return Math.sqrt(a.reduce((s,v
 const fd=i=>new Date(i+"T12:00:00").toLocaleDateString("fr-FR",{day:"numeric",month:"short"});
 const ti=()=>new Date().toISOString().slice(0,10);
 
-let S={data:ID,grids:DG,view:"dashboard",ed:ti(),ev:{},sf:"all",cd:null,cdg:null,cr:0,sag:false,ngs:"",nga:"3",dr:"all",drFrom:null,drTo:null,calOpen:false,calMonth:new Date().getMonth(),calYear:new Date().getFullYear(),theme:localStorage.getItem('st-theme')||'dark',objectives:JSON.parse(localStorage.getItem('st-obj')||'{}')};
+let S={data:ID,grids:DG,view:"dashboard",ed:ti(),ev:{},sf:"all",bf:"all",cd:null,cdg:null,cr:0,sag:false,ngs:"",nga:"3",dr:"all",drFrom:null,drTo:null,calOpen:false,calMonth:new Date().getMonth(),calYear:new Date().getFullYear(),theme:localStorage.getItem('st-theme')||'dark',objectives:JSON.parse(localStorage.getItem('st-obj')||'{}')};
 function ps(){ saveToFirestore(); }
 
 /* ═══ THEME ═══ */
@@ -420,6 +426,38 @@ function exportJSON(){
   const blob=new Blob([JSON.stringify({data:S.data,grids:S.grids,objectives:S.objectives},null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`schulte-tracker-${ti()}.json`;a.click();URL.revokeObjectURL(a.href);
 }
+function importJSON(){
+  const input=document.createElement('input');input.type='file';input.accept='.json';
+  input.onchange=e=>{
+    const file=e.target.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      try{
+        const j=JSON.parse(ev.target.result);
+        if(!j.data||!Array.isArray(j.data)){alert('❌ Fichier invalide : pas de données trouvées.');return}
+        const merge=confirm(`📥 ${j.data.length} jours et ${j.grids?.length||0} grilles trouvés.\n\nFusionner avec vos données actuelles ?\n\n• OK = Fusionner (ajoute les nouvelles données)\n• Annuler = Remplacer tout`);
+        if(merge){
+          // Merge: combine data by date
+          j.data.forEach(nd=>{
+            const ex=S.data.find(d=>d.date===nd.date);
+            if(ex){Object.keys(nd).forEach(k=>{if(k!=='date'&&Array.isArray(nd[k])){if(!ex[k])ex[k]=nd[k];else ex[k]=[...ex[k],...nd[k]]}})}
+            else S.data.push(nd);
+          });
+          S.data.sort((a,b)=>a.date.localeCompare(b.date));
+          if(j.grids)j.grids.forEach(ng=>{if(!S.grids.find(g=>g.key===ng.key))S.grids.push(ng)});
+        } else {
+          S.data=j.data;
+          if(j.grids)S.grids=j.grids;
+          if(j.objectives)S.objectives=j.objectives;
+        }
+        ps();R();
+        alert(`✅ Import réussi ! ${S.data.length} jours chargés.`);
+      }catch(err){alert('❌ Erreur de lecture : '+err.message)}
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
 function exportCSV(){
   let csv='Date';S.grids.forEach(g=>{csv+=`,${g.label} Moy,${g.label} Best,${g.label} Essais`});csv+='\n';
   S.data.forEach(d=>{csv+=d.date;S.grids.forEach(g=>{const v=d[g.key]||[];csv+=`,${v.length?av(v).toFixed(2):''},${v.length?bt(v).toFixed(2):''},${v.length||''}`});csv+='\n'});
@@ -447,6 +485,8 @@ function fdData(){
   return S.data;
 }
 function _naR(){S._noAnim=true;R()}
+function sbf(f){S.bf=f;_naR()}
+function badgeGrids(b){const s=b.check.toString();return S.grids.filter(g=>s.includes("'"+g.key+"'")||s.includes('"'+g.key+'"'))}
 function setDR(v){S.dr=v;S.calOpen=false;_naR()}
 function toggleCal(ev){if(ev)ev.stopPropagation();S.calOpen=!S.calOpen;_naR()}
 function closeCal(){if(S.calOpen){S.calOpen=false;_naR()}}
@@ -527,11 +567,16 @@ function R(){
   /* if(!currentUser)return; // disabled for local preview */
   dC();const d=S.data,g=S.grids;
   const ta=g.reduce((s,gr)=>s+d.reduce((s2,x)=>s2+(x[gr.key]?.length||0),0),0);
-  document.getElementById("hdr-sub").textContent=`${d.length} jours · ${ta} essais · ${g.length} grilles`;
+  const tt=g.reduce((s,gr)=>s+d.reduce((s2,x)=>s2+(x[gr.key]||[]).reduce((s3,t)=>s3+t,0),0),0);
+  const ftt=tt>=3600?`${Math.floor(tt/3600)}h${String(Math.floor((tt%3600)/60)).padStart(2,'0')}`
+    :tt>=60?`${Math.floor(tt/60)}m${String(Math.round(tt%60)).padStart(2,'0')}s`
+    :`${Math.round(tt)}s`;
+  document.getElementById("hdr-sub").textContent=`${d.length} jours · ${ta} essais · ${ftt} joué · ${g.length} grilles`;
   const app=document.getElementById("app");
   let h="";
   if(S.view==="dashboard")h=rD();else if(S.view==="play")h=rG();else if(S.view==="entry")h=rE();else if(S.view==="badges")h=rB();else h=rS();
-  app.innerHTML=`<div class="${S._noAnim?'':'view-transition'}">${h}</div>`;
+  const _ac=S._noAnim?'':(S._slideDir==='left'?'view-slide-left':S._slideDir==='right'?'view-slide-right':'view-transition');
+  app.innerHTML=`<div class="${_ac}">${h}</div>`;S._slideDir=null;
   requestAnimationFrame(()=>{updateSlider();applyTheme();if(S.view==="dashboard")iC();S._noAnim=false});
 }
 
@@ -565,13 +610,14 @@ function rD(){
   h+=`<div class="card"><h2>⚡ Meilleurs temps</h2><p class="card-desc">Votre meilleur essai de chaque jour. Reflète votre pic de performance — un bon indicateur de votre potentiel réel.</p><div class="chart-box"><canvas id="cB"></canvas></div></div>`;
   h+=`<div class="row2"><div class="card"><h2>📊 Progression (%)</h2><p class="card-desc">Variation de votre moyenne par rapport au tout premier jour. Négatif = amélioration (vous êtes plus rapide qu'au début).</p><div class="chart-box sm"><canvas id="cP"></canvas></div></div>`;
   h+=`<div class="card"><h2>🎯 Régularité (écart-type)</h2><p class="card-desc">Mesure la dispersion de vos temps dans une même session. Plus c'est bas, plus vos performances sont constantes et fiables.</p><div class="chart-box sm"><canvas id="cC"></canvas></div></div></div>`;
+  if(g.length>=3){h+=`<div class="card"><h2>🕸️ Profil</h2><p class="card-desc">Vue d'ensemble de vos forces par grille : vitesse, régularité, progression et volume.</p><div class="chart-box"><canvas id="cR"></canvas></div></div>`}
   let hm='<div class="hm-sec">';
   g.forEach(gr=>{const av2=d.flatMap(x=>x[gr.key]||[]);if(!av2.length)return;const mn=Math.min(...av2),mx=Math.max(...av2);
   hm+=`<div class="hm-col"><h3 style="color:${gr.color}">${gr.label}</h3>`;
   d.forEach(x=>{const v=x[gr.key]||[];if(!v.length){hm+=`<div class="hm-r"><span class="hm-d" style="color:var(--text3)">${fd(x.date)}</span><span style="font-size:9px;color:var(--text3);font-style:italic">—</span></div>`;return;}
   hm+=`<div class="hm-r"><span class="hm-d">${fd(x.date)}</span><div class="hm-cs">`;
-  v.forEach(val=>{const it=mx>mn?1-(val-mn)/(mx-mn):0.5;const al=Math.round(20+it*60).toString(16).padStart(2,"0");const ib=val===mn;
-  hm+=`<div class="hm-c" title="${val.toFixed(2)}s" style="background:${gr.color}${al};border:${ib?`2px solid ${gr.color}`:'1px solid transparent'};font-weight:${ib?700:400};color:${it>0.6?'#e2e8f0':'#64748b'}">${val.toFixed(1)}</div>`});
+  v.forEach((val,vi)=>{const it=mx>mn?1-(val-mn)/(mx-mn):0.5;const al=Math.round(20+it*60).toString(16).padStart(2,"0");const ib=val===mn;
+  hm+=`<div class="hm-c" style="background:${gr.color}${al};border:${ib?`2px solid ${gr.color}`:'1px solid transparent'};font-weight:${ib?700:400};color:${it>0.6?'#e2e8f0':'#64748b'}">${val.toFixed(1)}<span class="hm-tip">${fd(x.date)} · #${vi+1} — ${val.toFixed(2)}s</span></div>`});
   hm+='</div></div>'});
   hm+=`<p style="font-size:9px;color:var(--text2);margin-top:6px;text-align:center">Record : <span style="color:${gr.color};font-weight:700">${mn.toFixed(2)}s</span></p></div>`});
   hm+='</div>';
@@ -594,7 +640,7 @@ function iC(){
     lgH+='</div>';
   });
   lgH+='</div>';
-  e1.insertAdjacentHTML('afterend',lgH)}
+  e1.insertAdjacentHTML('beforebegin',lgH)}
   const e2=document.getElementById("cB");
   if(e2){CH.b=new Chart(e2,{type:'line',data:{labels:lb,datasets:g.map(gr=>({label:gr.label,data:d.map(x=>(x[gr.key]?.length)?+bt(x[gr.key]).toFixed(2):0),borderColor:gr.color,backgroundColor:gr.color,borderDash:[6,3],tension:.3,pointRadius:4,pointBackgroundColor:gr.color,borderWidth:2,fill:false}))},options:CO()})}
   const e3=document.getElementById("cP");
@@ -602,6 +648,28 @@ function iC(){
   CH.p=new Chart(e3,{type:'bar',data:{labels:lb,datasets:g.map(gr=>({label:gr.label,data:d.map(x=>{const v=x[gr.key];const a=v?.length?av(v):null;return(fa[gr.key]>0&&a!=null)?+((a-fa[gr.key])/fa[gr.key]*100).toFixed(1):0}),backgroundColor:gr.color+"cc",borderRadius:4,maxBarThickness:16}))},options:(()=>{const o=CO();o.scales.y.ticks={...o.scales.y.ticks,callback:v=>v+"%"};return o})()})}
   const e4=document.getElementById("cC");
   if(e4){CH.c=new Chart(e4,{type:'line',data:{labels:lb,datasets:g.map(gr=>({label:gr.label,data:d.map(x=>{const v=x[gr.key];return v?.length>=2?+sd(v).toFixed(2):null}),borderColor:gr.color,backgroundColor:gr.color,tension:.3,pointRadius:4,pointBackgroundColor:gr.color,borderWidth:2,fill:false,spanGaps:false}))},options:CO()})}
+  // Radar chart
+  const eR=document.getElementById("cR");
+  if(eR&&g.length>=3){
+    const radarLabels=['Vitesse','Régularité','Volume','Progression','Record'];
+    const radarDs=g.map(gr=>{
+      const allV=d.flatMap(x=>x[gr.key]||[]);
+      const allAvgs=d.filter(x=>x[gr.key]?.length).map(x=>av(x[gr.key]));
+      const bestTime=allV.length?Math.min(...allV):999;
+      const avgSd=allAvgs.length>=2?d.filter(x=>x[gr.key]?.length>=2).map(x=>sd(x[gr.key])).reduce((a,b)=>a+b,0)/(d.filter(x=>x[gr.key]?.length>=2).length||1):99;
+      const volume=allV.length;
+      const prog=allAvgs.length>=2?Math.max(0,(1-allAvgs[allAvgs.length-1]/allAvgs[0])*100):0;
+      // Normalize: higher = better, scale 0-100
+      const speedScore=Math.max(0,Math.min(100,100-bestTime*2));
+      const regScore=Math.max(0,Math.min(100,100-avgSd*10));
+      const volScore=Math.min(100,volume*2);
+      const progScore=Math.min(100,Math.max(0,prog*2));
+      const recScore=Math.max(0,Math.min(100,100-bestTime*1.5));
+      return{label:gr.label,data:[speedScore,regScore,volScore,progScore,recScore],borderColor:gr.color,backgroundColor:gr.color+'25',borderWidth:2,pointBackgroundColor:gr.color,pointRadius:3}
+    });
+    const s=getComputedStyle(document.documentElement);const t2=s.getPropertyValue('--text2').trim()||'#64748b';const gl2=s.getPropertyValue('--grid-line').trim()||'#1e293b';
+    CH.r=new Chart(eR,{type:'radar',data:{labels:radarLabels,datasets:radarDs},options:{responsive:true,maintainAspectRatio:false,animation:S._noAnim?false:{duration:400},plugins:{legend:{labels:{color:t2,font:{size:11,family:"'Space Mono'"},usePointStyle:true,pointStyle:'circle',boxWidth:8,padding:12}},tooltip:{backgroundColor:s.getPropertyValue('--chart-tooltip-bg').trim()||'#1e293b',titleColor:s.getPropertyValue('--chart-tooltip-text').trim()||'#e2e8f0',bodyColor:s.getPropertyValue('--chart-tooltip-text').trim()||'#e2e8f0',borderColor:s.getPropertyValue('--chart-tooltip-border').trim()||'#334155',borderWidth:1,cornerRadius:10,padding:10}},scales:{r:{angleLines:{color:gl2},grid:{color:gl2},pointLabels:{color:t2,font:{size:11,family:"'Space Mono'"}},ticks:{display:false},suggestedMin:0,suggestedMax:100}}}})
+  }
 }
 
 /* ═══ ENTRY ═══ */
@@ -653,9 +721,10 @@ function rS(){
   const exportHtml=`<div style="display:flex;gap:10px;flex-wrap:wrap">
     <button class="export-btn" onclick="exportJSON()">📥 Export JSON</button>
     <button class="export-btn" onclick="exportCSV()">📊 Export CSV</button>
+    <button class="export-btn" onclick="importJSON()" style="border-color:#34d39940;color:#34d399">📂 Import JSON</button>
   </div>`;
 
-  return `<div class="card"><h2>🎯 Objectifs</h2><p class="card-desc">Fixez un temps cible par grille pour suivre votre progression vers vos objectifs.</p>${objHtml}</div><div class="card"><h2>🎛 Grilles configurées</h2><p class="card-desc">Gérez vos tailles de grille et le nombre d'essais par défaut pour chacune.</p>${gl}${af}</div><div class="card"><h2>📤 Exporter</h2><p class="card-desc">Téléchargez vos données pour les sauvegarder ou les analyser ailleurs.</p>${exportHtml}</div><div class="card"><h2>🔧 Données</h2><p class="card-desc">Réinitialise toutes vos données et grilles vers les valeurs d'origine (8 sessions du 2 au 9 février).</p>${rb}</div>`;
+  return `<div class="card"><h2>🎯 Objectifs</h2><p class="card-desc">Fixez un temps cible par grille pour suivre votre progression vers vos objectifs.</p>${objHtml}</div><div class="card"><h2>🎛 Grilles configurées</h2><p class="card-desc">Gérez vos tailles de grille et le nombre d'essais par défaut pour chacune.</p>${gl}${af}</div><div class="card"><h2>📤 Exporter / Importer</h2><p class="card-desc">Téléchargez vos données ou restaurez une sauvegarde JSON.</p>${exportHtml}</div><div class="card"><h2>🔧 Données</h2><p class="card-desc">Réinitialise toutes vos données et grilles vers les valeurs d'origine (8 sessions du 2 au 9 février).</p>${rb}</div>`;
 }
 
 /* ═══ GAME STATE ═══ */
@@ -780,6 +849,20 @@ function gameSaveResult() {
 function gameDiscard() {
   startGame();
 }
+function shareResult(n,time,isRecord){
+  const streak=calcStreak();
+  const key=n+'x'+n;
+  const allV=S.data.flatMap(d=>d[key]||[]);
+  const pb=allV.length?Math.min(...allV):time;
+  let txt=`🧩 Schulte Tracker — ${n}×${n}\n`;
+  txt+=`⏱️ ${time.toFixed(2)}s`;
+  if(isRecord)txt+=` 🏆 Nouveau record !`;
+  else txt+=` (Record: ${pb.toFixed(2)}s)`;
+  txt+=`\n🔥 Série : ${streak} jour${streak>1?'s':''}`;
+  txt+=`\n\n▶️ https://li0re.github.io/schulte-tracker/`;
+  if(navigator.share){navigator.share({title:'Schulte Tracker',text:txt}).catch(()=>{})}
+  else{navigator.clipboard.writeText(txt).then(()=>{const btn=event.target;btn.textContent='✅ Copié !';setTimeout(()=>{btn.textContent='📤 Partager'},1500)})}
+}
 
 /* initGameBoard no longer needed — using inline onclick for zero-delay response */
 
@@ -822,6 +905,7 @@ function rG() {
         <div class="game-result-btns">
           <button class="save" onclick="gameSaveResult()">💾 Enregistrer & Rejouer</button>
           <button class="cancel" onclick="gameDiscard()">✗ Annuler & Rejouer</button>
+          <button class="replay" onclick="shareResult(${n},${GM.result},${isRecord})">📤 Partager</button>
         </div>
       </div>
       ${renderGameSession(gc)}
@@ -872,7 +956,8 @@ function renderGameSession(gc) {
 }
 
 /* ═══ ACTIONS ═══ */
-function sv(v){stopGameTimer();if(S.view==='entry'&&v!=='entry'){clearTimeout(_autoSaveTimer);seQuiet()}S.view=v;if(v==='entry')lev();if(v==='play'){GM.state='ready';GM.board=shuffleArray(GM.total);GM.next=1;GM.result=null;}R()}
+const TAB_IX={dashboard:0,play:1,entry:2,badges:3,settings:4};
+function sv(v){stopGameTimer();if(S.view==='entry'&&v!=='entry'){clearTimeout(_autoSaveTimer);seQuiet()}S._slideDir=(TAB_IX[v]||0)>(TAB_IX[S.view]||0)?'left':'right';S.view=v;if(v==='entry')lev();if(v==='play'){GM.state='ready';GM.board=shuffleArray(GM.total);GM.next=1;GM.result=null;}R()}
 function sfl(f){S.sf=f;_naR()}
 function sed(d){if(S.view==='entry'){clearTimeout(_autoSaveTimer);seQuiet()}S.ed=d;lev();_naR()}
 function shd(n){const d=new Date(S.ed+"T12:00:00");d.setDate(d.getDate()+n);sed(d.toISOString().slice(0,10))}
@@ -1028,6 +1113,13 @@ const BADGES=[
   {id:'consistent',cat:'progression',icon:'🎯',name:'Précision',desc:'Écart-type < 0.5s (3×3)',check:d=>d.some(x=>{const v=x['3x3']||[];return v.length>=3&&sd(v)<0.5})},
   {id:'laser',cat:'progression',icon:'🔬',name:'Laser',desc:'Écart-type < 1s (4×4)',check:d=>d.some(x=>{const v=x['4x4']||[];return v.length>=3&&sd(v)<1})},
   {id:'zen',cat:'progression',icon:'🧘',name:'Zen',desc:'Écart-type < 2s (5×5)',check:d=>d.some(x=>{const v=x['5x5']||[];return v.length>=3&&sd(v)<2})},
+  // ── Secrets ──
+  {id:'midnight',cat:'secret',icon:'🌙',name:'Noctambule',desc:'Jouer entre minuit et 1h',secret:true,check:d=>{const h=new Date().getHours();return h===0&&d.some(x=>S.grids.some(g=>(x[g.key]?.length||0)>0))}},
+  {id:'answer42',cat:'secret',icon:'🌌',name:'La Réponse',desc:'Faire exactement 4.20s',secret:true,check:d=>d.some(x=>S.grids.some(g=>(x[g.key]||[]).some(t=>t.toFixed(2)==='4.20')))},
+  {id:'lucky7',cat:'secret',icon:'🍀',name:'Chanceux',desc:'Faire exactement 7.77s',secret:true,check:d=>d.some(x=>S.grids.some(g=>(x[g.key]||[]).some(t=>t.toFixed(2)==='7.77')))},
+  {id:'palindrome',cat:'secret',icon:'🪞',name:'Miroir',desc:'Faire un temps palindrome (ex: 3.43)',secret:true,check:d=>d.some(x=>S.grids.some(g=>(x[g.key]||[]).some(t=>{const s=t.toFixed(2).replace('.','');return s===s.split('').reverse().join('')})))},
+  {id:'allsame',cat:'secret',icon:'🎰',name:'Jackpot',desc:'3 essais identiques à 0.1s près',secret:true,check:d=>d.some(x=>S.grids.some(g=>{const v=x[g.key]||[];if(v.length<3)return false;for(let i=0;i<v.length-2;i++){if(Math.abs(v[i]-v[i+1])<0.1&&Math.abs(v[i+1]-v[i+2])<0.1)return true}return false}))},
+  {id:'round',cat:'secret',icon:'⭕',name:'Pile poil',desc:'Faire un temps rond (X.00s)',secret:true,check:d=>d.some(x=>S.grids.some(g=>(x[g.key]||[]).some(t=>Math.abs(t-Math.round(t))<0.005)))},
 ];
 if(!S.earnedBadges)S.earnedBadges=[];
 
@@ -1048,20 +1140,26 @@ function showBadgeToast(b){
 }
 function rB(){
   checkBadges();
-  const earnedCount=BADGES.filter(b=>S.earnedBadges.includes(b.id)).length;
-  const pct=Math.round(earnedCount/BADGES.length*100);
-  let h=`<div class="card"><h2>🏆 Badges</h2><p class="card-desc">Débloquez des badges en atteignant des objectifs d'entraînement.</p>`;
-  h+=`<div style="display:flex;align-items:center;gap:12px;margin:12px 0 16px"><div style="flex:1;height:8px;border-radius:4px;background:var(--bg3);overflow:hidden"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#facc15,#f97316);border-radius:4px;transition:width .4s"></div></div><span style="font-size:13px;font-family:'Space Mono',monospace;color:#facc15;font-weight:700">${pct}%</span></div>`;
-  h+=renderBadges();
+  const filtered=S.bf==='all'?BADGES:BADGES.filter(b=>{const gs=badgeGrids(b);return gs.length===0||gs.some(g=>g.key===S.bf)});
+  const earnedCount=filtered.filter(b=>S.earnedBadges.includes(b.id)).length;
+  const pct=filtered.length?Math.round(earnedCount/filtered.length*100):0;
+  let bf=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;align-items:center"><span style="font-size:12px;color:var(--text2);font-family:'Space Mono',monospace">🔍 Filtre :</span>`;
+  bf+=`<button class="fbtn" onclick="sbf('all')" style="background:${S.bf==='all'?'#facc15':'var(--border)'};color:${S.bf==='all'?'#0a0e17':'var(--text2)'}">Tous</button>`;
+  S.grids.forEach(gr=>{bf+=`<button class="fbtn" onclick="sbf('${gr.key}')" style="background:${S.bf===gr.key?gr.color:'var(--border)'};color:${S.bf===gr.key?'#0a0e17':'var(--text2)'}">${gr.label}</button>`});
+  bf+=`</div>`;
+  let h=`<div class="card"><h2>🏆 Badges</h2><p class="card-desc">Débloquez des badges en atteignant des objectifs d'entraînement.</p>${bf}`;
+  h+=`<div style="display:flex;align-items:center;gap:12px;margin:12px 0 16px"><div style="flex:1;height:8px;border-radius:4px;background:var(--bg3);overflow:hidden"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#facc15,#f97316);border-radius:4px;transition:width .4s"></div></div><span style="font-size:13px;font-family:'Space Mono',monospace;color:#facc15;font-weight:700">${earnedCount}/${filtered.length} · ${pct}%</span></div>`;
+  h+=renderBadges(filtered);
   h+='</div>';
   return h;
 }
-function renderBadges(){
-  const catNames={parties:'🎮 Parties',series:'🔥 Séries',vitesse:'⚡ Vitesse',explore:'🧭 Exploration',regularite:'📅 Régularité',quotidien:'💨 Quotidien',progression:'📈 Progression'};
-  const cats=['parties','series','vitesse','explore','regularite','quotidien','progression'];
-  const earnedList=BADGES.filter(b=>S.earnedBadges.includes(b.id));
-  const lockedList=BADGES.filter(b=>!S.earnedBadges.includes(b.id));
-  let h=`<h3 style="font-size:14px;color:#facc15;margin:16px 0 8px;font-family:'Space Mono',monospace">✅ Débloqués (${earnedList.length}/${BADGES.length})</h3>`;
+function renderBadges(badgeList){
+  const bl=badgeList||BADGES;
+  const catNames={parties:'🎮 Parties',series:'🔥 Séries',vitesse:'⚡ Vitesse',explore:'🧭 Exploration',regularite:'📅 Régularité',quotidien:'💨 Quotidien',progression:'📈 Progression',secret:'🔮 Secrets'};
+  const cats=['parties','series','vitesse','explore','regularite','quotidien','progression','secret'];
+  const earnedList=bl.filter(b=>S.earnedBadges.includes(b.id));
+  const lockedList=bl.filter(b=>!S.earnedBadges.includes(b.id));
+  let h=`<h3 style="font-size:14px;color:#facc15;margin:16px 0 8px;font-family:'Space Mono',monospace">✅ Débloqués (${earnedList.length}/${bl.length})</h3>`;
   if(earnedList.length){
     cats.forEach(cat=>{
       const items=earnedList.filter(b=>b.cat===cat);
@@ -1081,7 +1179,7 @@ function renderBadges(){
       if(!items.length)return;
       h+=`<div style="font-size:11px;color:var(--text3);margin:12px 0 6px;font-family:'Space Mono',monospace">${catNames[cat]}</div>`;
       h+='<div class="badges-grid">';
-      items.forEach(b=>{h+=`<div class="badge-item locked"><span class="badge-icon">🔒</span><span class="badge-name">${b.name}</span><span class="badge-desc">${b.desc}</span></div>`});
+      items.forEach(b=>{h+=`<div class="badge-item locked"><span class="badge-icon">${b.secret?'❓':'🔒'}</span><span class="badge-name">${b.secret?'???':b.name}</span><span class="badge-desc">${b.secret?'Badge secret':b.desc}</span></div>`});
       h+='</div>';
     });
   }
