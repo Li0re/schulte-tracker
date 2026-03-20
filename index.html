@@ -13,19 +13,37 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0a0e17;font-family:'DM Sans',sans-serif;color:#e2e8f0;min-height:100vh;padding-top:72px}
-::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#0a0e17}::-webkit-scrollbar-thumb{background:#1e293b;border-radius:3px}
+:root{
+  --bg:#0a0e17;--bg2:#111827;--bg3:#0f172a;--bg-hover:#1a2332;
+  --border:#1e293b;--border2:#334155;--border-light:#1e293b40;
+  --text:#e2e8f0;--text2:#64748b;--text3:#475569;--text4:#94a3b8;
+  --card:#111827;--card-desc:#1e293b60;
+  --scrollbar-track:#0a0e17;--scrollbar-thumb:#1e293b;
+  --grid-line:#1e293b;--grid-line-light:#1e293b33;
+  --chart-tooltip-bg:#1e293b;--chart-tooltip-text:#e2e8f0;--chart-tooltip-border:#334155;
+}
+body.light{
+  --bg:#f1f5f9;--bg2:#ffffff;--bg3:#f8fafc;--bg-hover:#f1f5f9;
+  --border:#e2e8f0;--border2:#cbd5e1;--border-light:#cbd5e140;
+  --text:#1e293b;--text2:#64748b;--text3:#94a3b8;--text4:#94a3b8;
+  --card:#ffffff;--card-desc:#e2e8f060;
+  --scrollbar-track:#f1f5f9;--scrollbar-thumb:#cbd5e1;
+  --grid-line:#e2e8f0;--grid-line-light:#e2e8f066;
+  --chart-tooltip-bg:#ffffff;--chart-tooltip-text:#1e293b;--chart-tooltip-border:#e2e8f0;
+}
+body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);min-height:100vh;padding-top:72px}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--scrollbar-track)}::-webkit-scrollbar-thumb{background:var(--scrollbar-thumb);border-radius:3px}
 
 /* ═══ LOGIN SCREEN ═══ */
-.login-screen{position:fixed;inset:0;z-index:200;background:#0a0e17;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:30px;transition:opacity .4s,transform .4s}
+.login-screen{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:30px;transition:opacity .4s,transform .4s}
 .login-screen.hidden{opacity:0;pointer-events:none;transform:scale(1.05)}
 .login-logo{display:flex;flex-direction:column;align-items:center;gap:14px}
 .login-logo .big-grid{width:64px;height:64px;border-radius:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:6px;background:linear-gradient(135deg,#22d3ee,#a78bfa)}
 .login-logo .big-grid div{background:rgba(255,255,255,0.85);border-radius:3px}
 .login-logo h1{font-size:28px;font-weight:700;background:linear-gradient(135deg,#22d3ee,#a78bfa,#fb923c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.login-logo p{color:#64748b;font-size:13px}
-.google-btn{display:flex;align-items:center;gap:10px;padding:12px 28px;border-radius:12px;border:1px solid #1e293b;background:#111827;color:#e2e8f0;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
-.google-btn:hover{background:#1a2332;border-color:#334155}
+.login-logo p{color:var(--text2);font-size:13px}
+.google-btn{display:flex;align-items:center;gap:10px;padding:12px 28px;border-radius:12px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.google-btn:hover{background:var(--bg-hover);border-color:var(--border2)}
 .google-btn svg{width:20px;height:20px}
 .login-error{color:#f87171;font-size:12px;max-width:300px;text-align:center}
 
@@ -34,37 +52,37 @@ body{background:#0a0e17;font-family:'DM Sans',sans-serif;color:#e2e8f0;min-heigh
 .sync.saving{background:#facc1520;color:#facc15}
 .sync.saved{background:#34d39920;color:#34d399}
 .sync.error{background:#f8717120;color:#f87171}
-.sync.offline{background:#64748b20;color:#64748b}
+.sync.offline{background:#64748b20;color:var(--text2)}
 
 /* ═══ USER MENU ═══ */
 .user-info{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .user-avatar{width:28px;height:28px;border-radius:50%;border:2px solid #22d3ee40;cursor:pointer}
-.user-name{font-size:11px;color:#64748b;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.logout-btn{padding:4px 8px;border-radius:6px;border:1px solid #1e293b;background:transparent;color:#64748b;font-size:10px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.user-name{font-size:11px;color:var(--text2);max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.logout-btn{padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:10px;cursor:pointer;font-family:'DM Sans',sans-serif}
 .logout-btn:hover{border-color:#f87171;color:#f87171}
 
 /* ═══ STICKY HEADER ═══ */
-.topbar{position:fixed;top:0;left:0;right:0;z-index:100;background:#0a0e17ee;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid #1e293b40;padding:0 20px;height:68px;display:flex;align-items:center;justify-content:center}
+.topbar{position:fixed;top:0;left:0;right:0;z-index:100;background:color-mix(in srgb,var(--bg) 93%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border-light);padding:0 20px;height:68px;display:flex;align-items:center;justify-content:center}
 .topbar-inner{max-width:1100px;width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .logo-grid{width:32px;height:32px;border-radius:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:3px;background:linear-gradient(135deg,#22d3ee,#a78bfa)}
 .logo-grid div{background:rgba(255,255,255,0.85);border-radius:2px}
 .logo h1{font-size:18px;font-weight:700;background:linear-gradient(135deg,#22d3ee,#a78bfa,#fb923c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.logo p{font-size:10px;color:#64748b}
+.logo p{font-size:10px;color:var(--text2)}
 .hdr-right{display:flex;align-items:center;gap:10px}
 
 /* ═══ ANIMATED TABS ═══ */
-.tabs{position:relative;display:flex;background:#111827;border-radius:10px;padding:3px;border:1px solid #1e293b;overflow:hidden}
+.tabs{position:relative;display:flex;background:var(--bg2);border-radius:10px;padding:3px;border:1px solid var(--border);overflow:hidden}
 .tabs .slider{position:absolute;top:3px;bottom:3px;border-radius:8px;background:#22d3ee;transition:left .35s cubic-bezier(.4,0,.2,1),width .35s cubic-bezier(.4,0,.2,1);z-index:0}
-.tabs button{position:relative;z-index:1;padding:6px 14px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;transition:color .25s;background:transparent;color:#64748b;white-space:nowrap}
+.tabs button{position:relative;z-index:1;padding:6px 14px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;transition:color .25s;background:transparent;color:var(--text2);white-space:nowrap}
 .tabs button.active{color:#0a0e17}
 
 .app{max-width:1100px;margin:0 auto;padding:12px 20px 40px}
-.card{background:#111827;border:1px solid #1e293b;border-radius:14px;padding:20px;margin-bottom:18px}
-.card-desc{font-size:12px;color:#64748b;margin:0 0 14px;line-height:1.5;font-style:italic;padding-top:8px;border-top:1px solid #1e293b60}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:18px}
+.card-desc{font-size:12px;color:var(--text2);margin:0 0 14px;line-height:1.5;font-style:italic;padding-top:8px;border-top:1px solid var(--card-desc)}
 .stat-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
 .stat{border-radius:14px;padding:16px 18px;flex:1;min-width:130px}
-.stat-label{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1.1px;font-weight:600;margin-bottom:6px}
+.stat-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1.1px;font-weight:600;margin-bottom:6px}
 .stat-value{font-size:24px;font-weight:700;font-family:'Space Mono',monospace}
 .stat-change{font-size:11px;margin-top:5px}
 .chart-box{position:relative;height:290px;margin-top:8px}
@@ -74,22 +92,22 @@ body{background:#0a0e17;font-family:'DM Sans',sans-serif;color:#e2e8f0;min-heigh
 h2{font-size:15px;font-weight:600;margin-bottom:4px}
 
 /* ═══ UNIVERSAL FILTER ═══ */
-.ufilter{position:fixed;top:68px;left:0;right:0;z-index:99;display:flex;gap:4px;flex-wrap:wrap;padding:8px 20px;background:#0a0e17ee;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid #1e293b40;justify-content:center}
+.ufilter{position:fixed;top:68px;left:0;right:0;z-index:99;display:flex;gap:4px;flex-wrap:wrap;padding:8px 20px;background:color-mix(in srgb,var(--bg) 93%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border-light);justify-content:center}
 .ufilter-inner{max-width:1100px;width:100%;display:flex;gap:4px;flex-wrap:wrap;align-items:center}
-.ufilter-label{font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-right:8px}
+.ufilter-label{font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-right:8px}
 .fbtn{padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:none;font-family:'Space Mono',monospace;transition:all .2s}
 
 .hm-sec{display:flex;gap:16px;flex-wrap:wrap}
 .hm-col{flex:1;min-width:180px}
 .hm-col h3{font-size:12px;font-weight:600;margin:0 0 8px;font-family:'Space Mono',monospace}
 .hm-r{display:flex;align-items:center;gap:5px;margin-bottom:3px}
-.hm-d{font-size:9px;color:#64748b;width:38px;text-align:right;font-family:'Space Mono',monospace;flex-shrink:0}
+.hm-d{font-size:9px;color:var(--text2);width:38px;text-align:right;font-family:'Space Mono',monospace;flex-shrink:0}
 .hm-cs{display:flex;gap:2px;flex:1}
 .hm-c{flex:1;height:22px;border-radius:4px;max-width:52px;display:flex;align-items:center;justify-content:center;font-size:9px;font-family:'Space Mono',monospace;cursor:default}
-.inp{padding:7px 10px;border-radius:8px;border:1px solid #1e293b;background:#0f172a;color:#e2e8f0;font-size:14px;font-family:'Space Mono',monospace;outline:none;width:72px;transition:border-color .2s}
+.inp{padding:7px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-family:'Space Mono',monospace;outline:none;width:72px;transition:border-color .2s}
 .sbtn{padding:11px 28px;border-radius:10px;border:none;cursor:pointer;background:linear-gradient(135deg,#22d3ee,#a78bfa);color:#fff;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;box-shadow:0 4px 20px #22d3ee40}
 .si{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-radius:8px;cursor:pointer;border:1px solid transparent;transition:all .15s}
-.si:hover{background:#1a2332}
+.si:hover{background:var(--bg-hover)}
 .si.act{background:#22d3ee12;border-color:#22d3ee30}
 .mb{padding:2px 7px;border-radius:5px;font-size:10px;cursor:pointer}
 .en{margin-top:10px;padding:7px 10px;background:#34d39918;border-radius:7px;font-size:11px;color:#34d399}
@@ -97,45 +115,19 @@ h2{font-size:15px;font-weight:600;margin-bottom:4px}
 .pm{display:flex;gap:6px;margin-top:10px}
 .pm button{flex:1;padding:5px;border-radius:6px;background:transparent;font-size:16px;cursor:pointer;line-height:1}
 .cg{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:10px;flex-wrap:wrap;margin-bottom:10px}
-.cg input{width:50px;padding:4px 8px;border-radius:6px;border:1px solid #1e293b;background:#0f172a;color:#e2e8f0;font-size:13px;font-family:'Space Mono',monospace;outline:none;text-align:center}
+.cg input{width:50px;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;font-family:'Space Mono',monospace;outline:none;text-align:center}
 @media(max-width:600px){.topbar-inner{flex-direction:column;gap:6px}.topbar{height:auto;padding:10px 16px}body{padding-top:110px}.ufilter{top:auto;position:relative}.hdr-right{flex-wrap:wrap;justify-content:center}}
 
 /* ═══ THEME ═══ */
-body.light{background:#f1f5f9;color:#1e293b}
-body.light .topbar{background:#f1f5f9ee;border-bottom-color:#cbd5e140}
-body.light .ufilter{background:#f1f5f9ee;border-bottom-color:#cbd5e140}
-body.light .card{background:#fff;border-color:#e2e8f0}
-body.light .card-desc{border-top-color:#e2e8f060;color:#94a3b8}
-body.light .tabs{background:#fff;border-color:#e2e8f0}
-body.light .tabs button{color:#94a3b8}
-body.light .tabs button.active{color:#0a0e17}
-body.light .logo p{color:#94a3b8}
-body.light .stat-label{color:#94a3b8}
-body.light .si:hover{background:#f8fafc}
+/* Light overrides — most styles now use CSS variables automatically */
 body.light .si.act{background:#22d3ee08;border-color:#22d3ee20}
-body.light .inp{background:#f8fafc;border-color:#e2e8f0;color:#1e293b}
-body.light .game-cell{background:#f8fafc;border-color:#cbd5e1;color:#1e293b}
-body.light .game-cell:active{background:#e2e8f0}
-body.light .cg{border-color:inherit}
-body.light .cg input,.obj-input.lt{background:#f8fafc;border-color:#e2e8f0;color:#1e293b}
-body.light .cal-popup{background:#fff;border-color:#e2e8f0}
-body.light .cal-presets button{border-color:#e2e8f0;color:#94a3b8}
-body.light .cal-hdr span{color:#1e293b}
-body.light .cal-hdr button{border-color:#e2e8f0;color:#94a3b8}
-body.light .cal-day{color:#94a3b8}
-body.light .cal-day:hover:not(.empty){background:#f1f5f9;color:#1e293b}
-body.light .dr-btn{background:#fff;border-color:#e2e8f0;color:#1e293b}
-body.light .google-btn{background:#fff;border-color:#e2e8f0;color:#1e293b}
-body.light .login-screen{background:#f1f5f9}
-body.light .logout-btn{border-color:#e2e8f0;color:#94a3b8}
-body.light .game-grid-sel button{border-color:#e2e8f0;background:#fff;color:#94a3b8}
-body.light .game-count{background:#fff;border-color:#e2e8f0;color:#94a3b8}
 body.light h2{color:#1e293b}
-body.light .export-btn{border-color:#e2e8f0;color:#94a3b8}
-body.light .obj-bar{background:#e2e8f0}
-body.light .obj-input{background:#f8fafc;border-color:#e2e8f0;color:#1e293b}
-.theme-btn{background:none;border:1px solid #1e293b;border-radius:7px;padding:4px 8px;cursor:pointer;font-size:14px;line-height:1;transition:all .15s}
-body.light .theme-btn{border-color:#e2e8f0}
+body.light .cal-popup{box-shadow:0 12px 40px #00000012}
+body.light ::-webkit-scrollbar-track{background:#f1f5f9}
+body.light ::-webkit-scrollbar-thumb{background:#cbd5e1}
+body.light .game-cell{background:#ffffff;border-color:#cbd5e1}
+body.light .game-cell:active{background:#e2e8f0}
+.theme-btn{background:none;border:1px solid var(--border);border-radius:7px;padding:4px 8px;cursor:pointer;font-size:14px;line-height:1;transition:all .15s}
 
 /* ═══ VIEW TRANSITIONS ═══ */
 .view-transition{animation:viewIn .25s ease}
@@ -144,36 +136,36 @@ body.light .theme-btn{border-color:#e2e8f0}
 /* ═══ STREAK ═══ */
 .streak-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:10px;font-size:13px;font-weight:700;font-family:'Space Mono',monospace}
 .streak-badge.hot{background:#f9731618;color:#f97316;border:1px solid #f9731630}
-.streak-badge.cold{background:#64748b18;color:#64748b;border:1px solid #64748b30}
+.streak-badge.cold{background:#64748b18;color:var(--text2);border:1px solid #64748b30}
 
 /* ═══ OBJECTIVES ═══ */
 .obj-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;margin-bottom:8px;flex-wrap:wrap}
-.obj-bar{flex:1;min-width:80px;height:8px;border-radius:4px;background:#1e293b;overflow:hidden}
+.obj-bar{flex:1;min-width:80px;height:8px;border-radius:4px;background:var(--border);overflow:hidden}
 .obj-fill{height:100%;border-radius:4px;transition:width .4s ease}
-.obj-input{width:55px;padding:4px 6px;border-radius:6px;border:1px solid #1e293b;background:#0f172a;color:#e2e8f0;font-size:11px;font-family:'Space Mono',monospace;outline:none;text-align:center}
+.obj-input{width:55px;padding:4px 6px;border-radius:6px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:11px;font-family:'Space Mono',monospace;outline:none;text-align:center}
 
 /* ═══ EXPORT ═══ */
-.export-btn{padding:8px 18px;border-radius:8px;border:1px solid #1e293b;background:transparent;color:#64748b;font-size:12px;cursor:pointer;font-weight:600;font-family:'DM Sans',sans-serif;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
-.export-btn:hover{border-color:#334155;color:#e2e8f0}
+.export-btn{padding:8px 18px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:12px;cursor:pointer;font-weight:600;font-family:'DM Sans',sans-serif;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.export-btn:hover{border-color:var(--border2);color:var(--text)}
 
 /* ═══ DATE RANGE PICKER ═══ */
 .dr-wrap{position:relative;margin-left:auto}
-.dr-btn{padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #1e293b;background:#111827;color:#e2e8f0;font-family:'Space Mono',monospace;transition:all .2s;display:flex;align-items:center;gap:6px}
-.dr-btn:hover{border-color:#334155}
+.dr-btn{padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-family:'Space Mono',monospace;transition:all .2s;display:flex;align-items:center;gap:6px}
+.dr-btn:hover{border-color:var(--border2)}
 .dr-btn .ico{font-size:13px}
-.cal-popup{position:absolute;top:100%;right:0;margin-top:8px;background:#111827;border:1px solid #1e293b;border-radius:14px;padding:14px;width:280px;z-index:200;box-shadow:0 12px 40px #00000060}
+.cal-popup{position:absolute;top:100%;right:0;margin-top:8px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:14px;width:280px;z-index:200;box-shadow:0 12px 40px #00000020}
 .cal-presets{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
-.cal-presets button{padding:4px 10px;border-radius:7px;border:1px solid #1e293b;background:transparent;color:#64748b;font-size:10px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.cal-presets button{padding:4px 10px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:10px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
 .cal-presets button.act{background:#22d3ee;color:#0a0e17;border-color:#22d3ee}
-.cal-presets button:hover:not(.act){border-color:#334155;color:#e2e8f0}
+.cal-presets button:hover:not(.act){border-color:var(--border2);color:var(--text)}
 .cal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.cal-hdr span{font-size:13px;font-weight:600;color:#e2e8f0;text-transform:capitalize}
-.cal-hdr button{background:none;border:1px solid #1e293b;color:#64748b;width:28px;height:28px;border-radius:7px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s}
-.cal-hdr button:hover{border-color:#334155;color:#e2e8f0}
+.cal-hdr span{font-size:13px;font-weight:600;color:var(--text);text-transform:capitalize}
+.cal-hdr button{background:none;border:1px solid var(--border);color:var(--text2);width:28px;height:28px;border-radius:7px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.cal-hdr button:hover{border-color:var(--border2);color:var(--text)}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
-.cal-dn{font-size:9px;color:#475569;font-weight:600;padding:4px 0;text-transform:uppercase}
-.cal-day{font-size:11px;padding:6px 2px;border-radius:6px;cursor:pointer;color:#64748b;transition:all .1s;position:relative}
-.cal-day:hover:not(.empty){background:#1e293b;color:#e2e8f0}
+.cal-dn{font-size:9px;color:var(--text3);font-weight:600;padding:4px 0;text-transform:uppercase}
+.cal-day{font-size:11px;padding:6px 2px;border-radius:6px;cursor:pointer;color:var(--text2);transition:all .1s;position:relative}
+.cal-day:hover:not(.empty){background:var(--bg-hover);color:var(--text)}
 .cal-day.empty{cursor:default}
 .cal-day.today{color:#22d3ee;font-weight:700}
 .cal-day.sel{background:#22d3ee;color:#0a0e17;font-weight:700;border-radius:6px}
@@ -184,31 +176,41 @@ body.light .theme-btn{border-color:#e2e8f0}
 /* ═══ GAME ═══ */
 .game-wrap{display:flex;flex-direction:column;align-items:center;gap:16px}
 .game-grid-sel{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
-.game-grid-sel button{padding:6px 12px;border-radius:9px;border:2px solid #1e293b;background:#111827;color:#64748b;font-size:12px;font-weight:700;cursor:pointer;font-family:'Space Mono',monospace;transition:all .2s}
-.game-grid-sel button.active{border-color:var(--gc);color:var(--gc);background:color-mix(in srgb,var(--gc) 10%,#111827)}
+.game-grid-sel button{padding:6px 12px;border-radius:9px;border:2px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;font-family:'Space Mono',monospace;transition:all .2s}
+.game-grid-sel button.active{border-color:var(--gc);color:var(--gc);background:color-mix(in srgb,var(--gc) 10%,var(--bg2))}
 .game-board{display:grid;user-select:none;-webkit-user-select:none;max-width:min(90vw,520px);width:100%;margin:0 auto}
-.game-cell{display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'Space Mono',monospace;cursor:pointer;border:1px solid #475569;background:#1a2332;color:#e2e8f0;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:none}
-.game-cell:active{background:#253347}
+.game-cell{display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'Space Mono',monospace;cursor:pointer;border:1px solid var(--border2);background:var(--bg-hover);color:var(--text);touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:none}
+.game-cell:active{background:var(--bg3)}
 .game-cell.wrong{background:#f8717130;animation:shake .25s ease}
 .game-cell.done{cursor:default}
 .game-cell.idle{cursor:pointer}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
-.game-result{text-align:center;padding:28px;background:#111827;border:1px solid #1e293b;border-radius:18px;max-width:380px;width:100%}
+.game-board-wrap{transition:opacity .2s ease,transform .2s ease}
+.game-board-wrap.switching{opacity:0;transform:scale(.95)}
+#confetti-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:300}
+.badge-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid #facc15;border-radius:12px;padding:12px 20px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:#facc15;box-shadow:0 8px 32px #00000040;z-index:250;animation:badgeIn .4s ease,badgeOut .4s ease 2.6s forwards}
+@keyframes badgeIn{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes badgeOut{to{opacity:0;transform:translateX(-50%) translateY(20px)}}
+.badges-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.badge-item{padding:8px 14px;border-radius:10px;font-size:11px;font-family:'Space Mono',monospace;font-weight:600;display:flex;align-items:center;gap:6px}
+.badge-item.earned{background:#facc1515;border:1px solid #facc1530;color:#facc15}
+.badge-item.locked{background:var(--bg3);border:1px solid var(--border);color:var(--text3);opacity:.5}
+.game-result{text-align:center;padding:28px;background:var(--card);border:1px solid var(--border);border-radius:18px;max-width:380px;width:100%}
 .game-result .time{font-size:48px;font-weight:700;font-family:'Space Mono',monospace;margin:12px 0}
-.game-result .label{font-size:13px;color:#64748b;text-transform:uppercase;letter-spacing:1px}
+.game-result .label{font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:1px}
 .game-result .record-badge{display:inline-block;padding:4px 12px;border-radius:8px;background:#facc1520;color:#facc15;font-size:12px;font-weight:700;margin-top:8px}
 .game-result-btns{display:flex;gap:10px;margin-top:20px;justify-content:center;flex-wrap:wrap}
 .game-result-btns button{padding:10px 22px;border-radius:10px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;transition:all .15s}
 .game-result-btns .save{background:linear-gradient(135deg,#22d3ee,#a78bfa);color:#fff;box-shadow:0 4px 16px #22d3ee30}
-.game-result-btns .replay{background:#111827;border:1px solid #1e293b;color:#e2e8f0}
-.game-result-btns .replay:hover{border-color:#334155}
-.game-result-btns .cancel{background:transparent;border:1px solid #1e293b;color:#64748b}
+.game-result-btns .replay{background:var(--bg2);border:1px solid var(--border);color:var(--text)}
+.game-result-btns .replay:hover{border-color:var(--border2)}
+.game-result-btns .cancel{background:transparent;border:1px solid var(--border);color:var(--text2)}
 .game-session{width:100%;max-width:420px}
-.game-session h4{font-size:13px;font-weight:600;color:#64748b;margin-bottom:8px}
+.game-session h4{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:8px}
 .game-session .times{display:flex;gap:6px;flex-wrap:wrap}
 .game-session .times span{padding:4px 10px;border-radius:7px;font-size:12px;font-family:'Space Mono',monospace;font-weight:600}
-.game-count{font-size:11px;color:#64748b;padding:5px 12px;background:#111827;border:1px solid #1e293b;border-radius:8px;cursor:default;align-self:flex-end;white-space:pre-line;position:relative}
-.game-count:hover{color:#e2e8f0;border-color:#334155}
+.game-count{font-size:11px;color:var(--text2);padding:5px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px;cursor:default;align-self:flex-end;white-space:pre-line;position:relative}
+.game-count:hover{color:var(--text);border-color:var(--border2)}
 </style>
 </head>
 <body>
@@ -432,16 +434,17 @@ function fdData(){
   if(S.dr==='custom'&&S.drFrom){const to=S.drTo||S.drFrom;return S.data.filter(d=>d.date>=S.drFrom&&d.date<=to)}
   return S.data;
 }
-function setDR(v){S.dr=v;S.calOpen=false;R()}
-function toggleCal(ev){if(ev)ev.stopPropagation();S.calOpen=!S.calOpen;R()}
-function closeCal(){if(S.calOpen){S.calOpen=false;R()}}
-function calNav(delta,ev){if(ev)ev.stopPropagation();S.calMonth+=delta;if(S.calMonth>11){S.calMonth=0;S.calYear++}if(S.calMonth<0){S.calMonth=11;S.calYear--}R()}
+function _naR(){S._noAnim=true;R()}
+function setDR(v){S.dr=v;S.calOpen=false;_naR()}
+function toggleCal(ev){if(ev)ev.stopPropagation();S.calOpen=!S.calOpen;_naR()}
+function closeCal(){if(S.calOpen){S.calOpen=false;_naR()}}
+function calNav(delta,ev){if(ev)ev.stopPropagation();S.calMonth+=delta;if(S.calMonth>11){S.calMonth=0;S.calYear++}if(S.calMonth<0){S.calMonth=11;S.calYear--}_naR()}
 function calClick(dateStr,ev){
   if(ev)ev.stopPropagation();
   if(!S.drFrom||S.drTo){S.drFrom=dateStr;S.drTo=null}
   else if(dateStr<S.drFrom){S.drTo=S.drFrom;S.drFrom=dateStr}
   else{S.drTo=dateStr}
-  S.dr='custom';R();
+  S.dr='custom';_naR();
 }
 function drLabel(){
   if(S.dr==='all')return'All time';
@@ -493,7 +496,7 @@ function lev(){const ex=S.data.find(d=>d.date===S.ed);const e={};S.grids.forEach
 lev();
 
 let CH={};function dC(){Object.values(CH).forEach(c=>c.destroy());CH={}}
-const CO={responsive:true,maintainAspectRatio:false,animation:{duration:400},layout:{padding:{bottom:10}},plugins:{legend:{labels:{color:'#64748b',font:{size:11,family:"'Space Mono'"}}},tooltip:{backgroundColor:'#1e293b',titleColor:'#e2e8f0',bodyColor:'#e2e8f0',borderColor:'#334155',borderWidth:1,cornerRadius:10,padding:10}},scales:{x:{ticks:{color:'#64748b',font:{size:10,family:"'Space Mono'"},maxRotation:45,minRotation:25,autoSkip:true,autoSkipPadding:10},grid:{color:'#1e293b33'}},y:{ticks:{color:'#64748b',font:{size:10,family:"'Space Mono'"}},grid:{color:'#1e293b'}}}};
+function CO(){const s=getComputedStyle(document.documentElement);const t2=s.getPropertyValue('--text2').trim()||'#64748b';const gl=s.getPropertyValue('--grid-line').trim()||'#1e293b';const gll=s.getPropertyValue('--grid-line-light').trim()||'#1e293b33';const ttbg=s.getPropertyValue('--chart-tooltip-bg').trim()||'#1e293b';const ttt=s.getPropertyValue('--chart-tooltip-text').trim()||'#e2e8f0';const ttb=s.getPropertyValue('--chart-tooltip-border').trim()||'#334155';return{responsive:true,maintainAspectRatio:false,animation:S._noAnim?false:{duration:400},layout:{padding:{bottom:10}},plugins:{legend:{labels:{color:t2,font:{size:11,family:"'Space Mono'"},usePointStyle:true,pointStyle:'circle',boxWidth:8,padding:14}},tooltip:{backgroundColor:ttbg,titleColor:ttt,bodyColor:ttt,borderColor:ttb,borderWidth:1,cornerRadius:10,padding:10}},scales:{x:{offset:true,ticks:{color:t2,font:{size:10,family:"'Space Mono'"},maxRotation:45,minRotation:25,autoSkip:true,autoSkipPadding:10},grid:{color:gll}},y:{ticks:{color:t2,font:{size:10,family:"'Space Mono'"}},grid:{color:gl}}}};}
 
 /* ═══ TAB SLIDER ═══ */
 function updateSlider(){
@@ -508,25 +511,25 @@ function fg(){return S.sf==="all"?S.grids:S.grids.filter(g=>g.key===S.sf)}
 
 /* ═══ RENDER ═══ */
 function R(){
-  if(!currentUser)return;
+  /* if(!currentUser)return; // disabled for local preview */
   dC();const d=S.data,g=S.grids;
   const ta=g.reduce((s,gr)=>s+d.reduce((s2,x)=>s2+(x[gr.key]?.length||0),0),0);
   document.getElementById("hdr-sub").textContent=`${d.length} jours · ${ta} essais · ${g.length} grilles`;
   const app=document.getElementById("app");
   let h="";
   if(S.view==="dashboard")h=rD();else if(S.view==="play")h=rG();else if(S.view==="entry")h=rE();else h=rS();
-  app.innerHTML=`<div class="view-transition">${h}</div>`;
-  requestAnimationFrame(()=>{updateSlider();applyTheme();if(S.view==="dashboard")iC()});
+  app.innerHTML=`<div class="${S._noAnim?'':'view-transition'}">${h}</div>`;
+  requestAnimationFrame(()=>{updateSlider();applyTheme();if(S.view==="dashboard")iC();S._noAnim=false});
 }
 
 /* ═══ DASHBOARD ═══ */
 function rD(){
   const g=fg(),d=fdData();
-  if(!d.length)return'<div style="text-align:center;padding:60px;color:#64748b"><p>📭 Aucune donnée pour cette période.</p><button class="fbtn" onclick="setDR(\'all\')" style="background:#22d3ee;color:#0a0e17;margin-top:12px;padding:8px 20px">Voir tout</button></div>';
+  if(!d.length)return'<div style="text-align:center;padding:60px;color:var(--text2)"><p>📭 Aucune donnée pour cette période.</p><button class="fbtn" onclick="setDR(\'all\')" style="background:#22d3ee;color:#0a0e17;margin-top:12px;padding:8px 20px">Voir tout</button></div>';
   const L=d[d.length-1],F=d[0];
   let uf=`<div class="ufilter"><div class="ufilter-inner"><span class="ufilter-label">🔍 Filtre :</span>`;
-  uf+=`<button class="fbtn" onclick="sfl('all')" style="background:${S.sf==='all'?'#22d3ee':'#1e293b'};color:${S.sf==='all'?'#0a0e17':'#64748b'}">Toutes</button>`;
-  S.grids.forEach(gr=>{uf+=`<button class="fbtn" onclick="sfl('${gr.key}')" style="background:${S.sf===gr.key?gr.color:'#1e293b'};color:${S.sf===gr.key?'#0a0e17':'#64748b'}">${gr.label}</button>`});
+  uf+=`<button class="fbtn" onclick="sfl('all')" style="background:${S.sf==='all'?'#22d3ee':'var(--border)'};color:${S.sf==='all'?'#0a0e17':'var(--text2)'}">Toutes</button>`;
+  S.grids.forEach(gr=>{uf+=`<button class="fbtn" onclick="sfl('${gr.key}')" style="background:${S.sf===gr.key?gr.color:'var(--border)'};color:${S.sf===gr.key?'#0a0e17':'var(--text2)'}">${gr.label}</button>`});
   // Date range picker on the right
   uf+=`<div class="dr-wrap"><button class="dr-btn" onclick="toggleCal(event)"><span class="ico">📅</span>${drLabel()}</button>`;
   if(S.calOpen)uf+=renderCal();
@@ -540,41 +543,41 @@ function rD(){
   // Find previous day with data for this grid
   const lIdx=d.indexOf(lEntry);const prevEntry=lIdx>0?[...d].slice(0,lIdx).reverse().find(x=>x[gr.key]?.length):null;const pa=prevEntry?av(prevEntry[gr.key]):null;
   const c=(a&&pa)?((a-pa)/pa*100):null;
-  h+=`<div class="stat" style="background:linear-gradient(135deg,${gr.color}10,${gr.color}05);border:1px solid ${gr.color}30"><div class="stat-label">◧ ${gr.label} Moy.</div><div class="stat-value" style="color:${gr.color}">${a?a.toFixed(2):"—"}<span style="font-size:13px;color:#64748b;margin-left:3px">${a?"s":""}</span></div>${c!=null?`<div class="stat-change" style="color:${c<=0?"#34d399":"#f87171"}">${c<=0?"▼":"▲"} ${Math.abs(c).toFixed(1)}% vs veille</div>`:""}</div>`});
+  h+=`<div class="stat" style="background:linear-gradient(135deg,${gr.color}10,${gr.color}05);border:1px solid ${gr.color}30"><div class="stat-label">◧ ${gr.label} Moy.</div><div class="stat-value" style="color:${gr.color}">${a?a.toFixed(2):"—"}<span style="font-size:13px;color:var(--text2);margin-left:3px">${a?"s":""}</span></div>${c!=null?`<div class="stat-change" style="color:${c<=0?"#34d399":"#f87171"}">${c<=0?"▼":"▲"} ${Math.abs(c).toFixed(1)}% vs veille</div>`:""}</div>`});
   h+='</div><div class="stat-row">';
   g.forEach(gr=>{const av2=d.flatMap(x=>x[gr.key]||[]);const b=av2.length?Math.min(...av2):null;
-  h+=`<div class="stat" style="background:linear-gradient(135deg,${gr.color}10,${gr.color}05);border:1px solid ${gr.color}30"><div class="stat-label">⚡ Record ${gr.label}</div><div class="stat-value" style="color:${gr.color}">${b?b.toFixed(2):"—"}<span style="font-size:13px;color:#64748b;margin-left:3px">${b?"s":""}</span></div></div>`});
+  h+=`<div class="stat" style="background:linear-gradient(135deg,${gr.color}10,${gr.color}05);border:1px solid ${gr.color}30"><div class="stat-label">⚡ Record ${gr.label}</div><div class="stat-value" style="color:${gr.color}">${b?b.toFixed(2):"—"}<span style="font-size:13px;color:var(--text2);margin-left:3px">${b?"s":""}</span></div></div>`});
   h+='</div>';
-  h+=`<div class="card"><h2>📉 Moyennes par session</h2><p class="card-desc">Évolution de votre temps moyen sur l'ensemble des essais de chaque session. Une courbe qui descend = vous progressez.</p><div class="chart-box"><canvas id="cA"></canvas></div></div>`;
+  h+=`<div class="card"><h2>📉 Moyennes par session</h2><p class="card-desc">Évolution de votre temps moyen sur l'ensemble des essais de chaque session. Une courbe qui descend = vous progressez. Les pointillés représentent la moyenne mobile sur 7 jours.</p><div class="chart-box"><canvas id="cA"></canvas></div></div>`;
   h+=`<div class="card"><h2>⚡ Meilleurs temps</h2><p class="card-desc">Votre meilleur essai de chaque jour. Reflète votre pic de performance — un bon indicateur de votre potentiel réel.</p><div class="chart-box"><canvas id="cB"></canvas></div></div>`;
   h+=`<div class="row2"><div class="card"><h2>📊 Progression (%)</h2><p class="card-desc">Variation de votre moyenne par rapport au tout premier jour. Négatif = amélioration (vous êtes plus rapide qu'au début).</p><div class="chart-box sm"><canvas id="cP"></canvas></div></div>`;
   h+=`<div class="card"><h2>🎯 Régularité (écart-type)</h2><p class="card-desc">Mesure la dispersion de vos temps dans une même session. Plus c'est bas, plus vos performances sont constantes et fiables.</p><div class="chart-box sm"><canvas id="cC"></canvas></div></div></div>`;
   let hm='<div class="hm-sec">';
   g.forEach(gr=>{const av2=d.flatMap(x=>x[gr.key]||[]);if(!av2.length)return;const mn=Math.min(...av2),mx=Math.max(...av2);
   hm+=`<div class="hm-col"><h3 style="color:${gr.color}">${gr.label}</h3>`;
-  d.forEach(x=>{const v=x[gr.key]||[];if(!v.length){hm+=`<div class="hm-r"><span class="hm-d" style="color:#475569">${fd(x.date)}</span><span style="font-size:9px;color:#475569;font-style:italic">—</span></div>`;return;}
+  d.forEach(x=>{const v=x[gr.key]||[];if(!v.length){hm+=`<div class="hm-r"><span class="hm-d" style="color:var(--text3)">${fd(x.date)}</span><span style="font-size:9px;color:var(--text3);font-style:italic">—</span></div>`;return;}
   hm+=`<div class="hm-r"><span class="hm-d">${fd(x.date)}</span><div class="hm-cs">`;
   v.forEach(val=>{const it=mx>mn?1-(val-mn)/(mx-mn):0.5;const al=Math.round(20+it*60).toString(16).padStart(2,"0");const ib=val===mn;
   hm+=`<div class="hm-c" title="${val.toFixed(2)}s" style="background:${gr.color}${al};border:${ib?`2px solid ${gr.color}`:'1px solid transparent'};font-weight:${ib?700:400};color:${it>0.6?'#e2e8f0':'#64748b'}">${val.toFixed(1)}</div>`});
   hm+='</div></div>'});
-  hm+=`<p style="font-size:9px;color:#64748b;margin-top:6px;text-align:center">Record : <span style="color:${gr.color};font-weight:700">${mn.toFixed(2)}s</span></p></div>`});
+  hm+=`<p style="font-size:9px;color:var(--text2);margin-top:6px;text-align:center">Record : <span style="color:${gr.color};font-weight:700">${mn.toFixed(2)}s</span></p></div>`});
   hm+='</div>';
   h+=`<div class="card"><h2>🔬 Tous les essais</h2><p class="card-desc">Carte thermique de chaque essai. Plus la case est vive, meilleur est le temps. Le record absolu est encadré.</p>${hm}</div>`;
-  h+=`<div style="text-align:center;padding:14px 0 0;color:#64748b;font-size:11px">Dernière session : ${fd(d[d.length-1].date)} · <span style="color:#34d399;font-weight:600">En progression 🚀</span></div>`;
+  h+=`<div style="text-align:center;padding:14px 0 0;color:var(--text2);font-size:11px">Dernière session : ${fd(d[d.length-1].date)} · <span style="color:#34d399;font-weight:600">En progression 🚀</span></div>`;
   return h;
 }
 
 function iC(){
   const g=fg(),d=fdData();if(!d.length)return;const lb=d.map(x=>fd(x.date));
   const e1=document.getElementById("cA");
-  if(e1){const ds=[];g.forEach(gr=>{ds.push({label:gr.label+" moy",data:d.map(x=>(x[gr.key]?.length)?+av(x[gr.key]).toFixed(2):0),borderColor:gr.color,backgroundColor:gr.color+"30",fill:true,tension:.3,pointRadius:4,pointBackgroundColor:gr.color,borderWidth:2.5});if(d.length>=4){ds.push({label:gr.label+" MA7",data:ma7(d,gr.key),borderColor:gr.color,borderDash:[4,4],borderWidth:1.5,pointRadius:0,fill:false,tension:.4})}});CH.a=new Chart(e1,{type:'line',data:{labels:lb,datasets:ds},options:JSON.parse(JSON.stringify(CO))})}
+  if(e1){const ds=[];g.forEach(gr=>{ds.push({label:gr.label,data:d.map(x=>(x[gr.key]?.length)?+av(x[gr.key]).toFixed(2):0),borderColor:gr.color,backgroundColor:gr.color+"30",fill:true,tension:.3,pointRadius:4,pointBackgroundColor:gr.color,borderWidth:2.5});if(d.length>=4){ds.push({label:gr.label+" MA7",data:ma7(d,gr.key),borderColor:gr.color,borderDash:[4,4],borderWidth:1.5,pointRadius:0,fill:false,tension:.4,isMA7:true,pointStyle:'line'})}});CH.a=new Chart(e1,{type:'line',data:{labels:lb,datasets:ds},options:(()=>{const o=CO();o.plugins.legend.labels.usePointStyle=true;o.plugins.legend.labels.boxWidth=8;o.plugins.legend.labels.padding=12;o.plugins.legend.maxWidth=9999;return o})()})}
   const e2=document.getElementById("cB");
-  if(e2){CH.b=new Chart(e2,{type:'line',data:{labels:lb,datasets:g.map(gr=>({label:gr.label+" best",data:d.map(x=>(x[gr.key]?.length)?+bt(x[gr.key]).toFixed(2):0),borderColor:gr.color,backgroundColor:gr.color,borderDash:[6,3],tension:.3,pointRadius:4,pointBackgroundColor:gr.color,borderWidth:2,fill:false}))},options:JSON.parse(JSON.stringify(CO))})}
+  if(e2){CH.b=new Chart(e2,{type:'line',data:{labels:lb,datasets:g.map(gr=>({label:gr.label,data:d.map(x=>(x[gr.key]?.length)?+bt(x[gr.key]).toFixed(2):0),borderColor:gr.color,backgroundColor:gr.color,borderDash:[6,3],tension:.3,pointRadius:4,pointBackgroundColor:gr.color,borderWidth:2,fill:false}))},options:CO()})}
   const e3=document.getElementById("cP");
   if(e3&&d.length>=2){const fa={};g.forEach(gr=>{const firstEntry=d.find(x=>x[gr.key]?.length);const v=firstEntry?firstEntry[gr.key]:[];fa[gr.key]=v?.length?av(v):0});
-  CH.p=new Chart(e3,{type:'bar',data:{labels:lb,datasets:g.map(gr=>({label:gr.label,data:d.map(x=>{const v=x[gr.key];const a=v?.length?av(v):null;return(fa[gr.key]>0&&a!=null)?+((a-fa[gr.key])/fa[gr.key]*100).toFixed(1):0}),backgroundColor:gr.color+"cc",borderRadius:4,maxBarThickness:16}))},options:{...JSON.parse(JSON.stringify(CO)),scales:{...CO.scales,y:{...CO.scales.y,ticks:{color:'#64748b',font:{size:10,family:"'Space Mono'"},callback:v=>v+"%"}}}}})}
+  CH.p=new Chart(e3,{type:'bar',data:{labels:lb,datasets:g.map(gr=>({label:gr.label,data:d.map(x=>{const v=x[gr.key];const a=v?.length?av(v):null;return(fa[gr.key]>0&&a!=null)?+((a-fa[gr.key])/fa[gr.key]*100).toFixed(1):0}),backgroundColor:gr.color+"cc",borderRadius:4,maxBarThickness:16}))},options:(()=>{const o=CO();o.scales.y.ticks={...o.scales.y.ticks,callback:v=>v+"%"};return o})()})}
   const e4=document.getElementById("cC");
-  if(e4){CH.c=new Chart(e4,{type:'line',data:{labels:lb,datasets:g.map(gr=>({label:gr.label,data:d.map(x=>{const v=x[gr.key];return v?.length>=2?+sd(v).toFixed(2):null}),borderColor:gr.color,backgroundColor:gr.color,tension:.3,pointRadius:4,pointBackgroundColor:gr.color,borderWidth:2,fill:false,spanGaps:false}))},options:JSON.parse(JSON.stringify(CO))})}
+  if(e4){CH.c=new Chart(e4,{type:'line',data:{labels:lb,datasets:g.map(gr=>({label:gr.label,data:d.map(x=>{const v=x[gr.key];return v?.length>=2?+sd(v).toFixed(2):null}),borderColor:gr.color,backgroundColor:gr.color,tension:.3,pointRadius:4,pointBackgroundColor:gr.color,borderWidth:2,fill:false,spanGaps:false}))},options:CO()})}
 }
 
 /* ═══ ENTRY ═══ */
@@ -584,22 +587,22 @@ function rE(){
   g.forEach(gr=>{const f=S.ev[gr.key]||Array(gr.defaultAttempts).fill("");const fi=f.map(v=>parseFloat(String(v).replace(",","."))).filter(v=>!isNaN(v)&&v>0);
   const bestVal=fi.length>=2?Math.min(...fi):null;const worstVal=fi.length>=2?Math.max(...fi):null;
   gc+=`<div class="card" style="flex:1;min-width:185px"><h3 style="font-size:15px;font-weight:700;color:${gr.color};margin:0 0 14px;font-family:'Space Mono',monospace">${gr.label}</h3><div>`;
-  f.forEach((v,i)=>{const num=parseFloat(String(v).replace(",","."));const isBest=bestVal!==null&&num===bestVal&&!isNaN(num);const isWorst=worstVal!==null&&num===worstVal&&!isNaN(num)&&bestVal!==worstVal;const indicator=isBest?' 🟢':isWorst?' 🔴':'';gc+=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span style="font-size:11px;color:#64748b;font-family:'Space Mono',monospace;width:20px;text-align:right">#${i+1}</span><input class="inp" type="text" inputmode="decimal" placeholder="—" value="${v}" oninput="ue('${gr.key}',${i},this.value)" onkeydown="if(event.key==='Enter')se()" style="border-color:${isBest?'#34d39980':isWorst?'#f8717180':v?gr.color+'60':'#1e293b'};background:${isBest?'#34d39915':isWorst?'#f8717115':v?gr.color+'10':'#0f172a'}"><span style="font-size:11px;color:#64748b">s${indicator}</span></div>`});
-  gc+=`</div><div class="pm"><button onclick="aa('${gr.key}')" style="border:1px dashed ${gr.color}40;color:${gr.color}">+</button><button onclick="ra('${gr.key}')" style="border:1px dashed ${f.length<=1?'#1e293b':gr.color+'40'};color:${f.length<=1?'#475569':gr.color};opacity:${f.length<=1?.4:1};cursor:${f.length<=1?'not-allowed':'pointer'}">−</button></div>`;
+  f.forEach((v,i)=>{const num=parseFloat(String(v).replace(",","."));const isBest=bestVal!==null&&num===bestVal&&!isNaN(num);const isWorst=worstVal!==null&&num===worstVal&&!isNaN(num)&&bestVal!==worstVal;const indicator=isBest?' 🟢':isWorst?' 🔴':'';gc+=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span style="font-size:11px;color:var(--text2);font-family:'Space Mono',monospace;width:20px;text-align:right">#${i+1}</span><input class="inp" type="text" inputmode="decimal" placeholder="—" value="${v}" oninput="ue('${gr.key}',${i},this.value)" onkeydown="if(event.key==='Enter')se()" style="border-color:${isBest?'#34d39980':isWorst?'#f8717180':v?gr.color+'60':'var(--border)'};background:${isBest?'#34d39915':isWorst?'#f8717115':v?gr.color+'10':'var(--bg3)'}"><span style="font-size:11px;color:var(--text2)">s${indicator}</span></div>`});
+  gc+=`</div><div class="pm"><button onclick="aa('${gr.key}')" style="border:1px dashed ${gr.color}40;color:${gr.color}">+</button><button onclick="ra('${gr.key}')" style="border:1px dashed ${f.length<=1?'var(--border)':gr.color+'40'};color:${f.length<=1?'var(--text3)':gr.color};opacity:${f.length<=1?.4:1};cursor:${f.length<=1?'not-allowed':'pointer'}">−</button></div>`;
   if(fi.length>0)gc+=`<div class="gs" style="background:${gr.color}10;color:${gr.color}"><span>Moy: ${av(fi).toFixed(2)}s</span><span>Best: ${bt(fi).toFixed(2)}s</span></div>`;
   gc+='</div>'});gc+='</div>';
   let sl='';[...d].reverse().forEach(x=>{const ia=x.date===S.ed;const gi=g.map(gr=>{const v=x[gr.key]||[];return v.length?`<span style="color:${gr.color}">${gr.label}:${v.length}</span>`:''}).filter(Boolean).join(' ');
-  sl+=`<div class="si ${ia?'act':''}" onclick="sed('${x.date}')"><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><span style="font-size:12px;font-weight:600;font-family:'Space Mono',monospace;color:${ia?'#22d3ee':'#e2e8f0'};min-width:55px">${fd(x.date)}</span><div style="display:flex;gap:8px;font-size:11px">${gi}</div></div>${S.cd===x.date?`<div style="display:flex;gap:3px" onclick="event.stopPropagation()"><button class="mb" onclick="de('${x.date}')" style="border:none;background:#f87171;color:#fff;font-weight:600">Oui</button><button class="mb" onclick="S.cd=null;R()" style="border:1px solid #1e293b;background:transparent;color:#64748b">Non</button></div>`:`<button class="mb" onclick="event.stopPropagation();S.cd='${x.date}';R()" style="border:1px solid #1e293b;background:transparent;color:#64748b">🗑</button>`}</div>`});
-  return `<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px"><div><label style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;font-weight:600">Date de la session</label><div style="margin-top:5px"><input type="date" value="${S.ed}" onchange="sed(this.value)" style="padding:7px 12px;border-radius:8px;border:1px solid #1e293b;background:#0f172a;color:#e2e8f0;font-size:13px;font-family:'Space Mono',monospace;outline:none"></div></div><div style="display:flex;gap:5px;flex-wrap:wrap"><button onclick="shd(-1)" style="padding:5px 10px;border-radius:7px;border:1px solid #1e293b;background:#111827;color:#64748b;font-size:11px;cursor:pointer">← Veille</button><button onclick="sed('${ti()}')" style="padding:5px 10px;border-radius:7px;border:1px solid #22d3ee30;background:#22d3ee15;color:#22d3ee;font-size:11px;cursor:pointer;font-weight:600">Aujourd'hui</button><button onclick="shd(1)" style="padding:5px 10px;border-radius:7px;border:1px solid #1e293b;background:#111827;color:#64748b;font-size:11px;cursor:pointer">Lendemain →</button></div></div>${ex?'<div class="en">✓ Données existantes — modifiez et sauvegardez pour mettre à jour</div>':''}</div>${gc}<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:24px"><button class="sbtn" onclick="se()">💾 Sauvegarder</button><span id="ss" style="font-size:12px;font-weight:600"></span></div><div class="card"><h3 style="font-size:14px;font-weight:600;margin-bottom:12px">📋 Sessions enregistrées</h3><p class="card-desc" style="margin-top:0">Cliquez sur une session pour la modifier. L'icône 🗑 permet de la supprimer.</p>${d.length===0?'<p style="color:#64748b;font-size:12px">Aucune donnée.</p>':`<div style="display:flex;flex-direction:column;gap:4px">${sl}</div>`}</div>`;
+  sl+=`<div class="si ${ia?'act':''}" onclick="sed('${x.date}')"><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><span style="font-size:12px;font-weight:600;font-family:'Space Mono',monospace;color:${ia?'#22d3ee':'var(--text)'};min-width:55px">${fd(x.date)}</span><div style="display:flex;gap:8px;font-size:11px">${gi}</div></div>${S.cd===x.date?`<div style="display:flex;gap:3px" onclick="event.stopPropagation()"><button class="mb" onclick="de('${x.date}')" style="border:none;background:#f87171;color:#fff;font-weight:600">Oui</button><button class="mb" onclick="S.cd=null;R()" style="border:1px solid var(--border);background:transparent;color:var(--text2)">Non</button></div>`:`<button class="mb" onclick="event.stopPropagation();S.cd='${x.date}';R()" style="border:1px solid var(--border);background:transparent;color:var(--text2)">🗑</button>`}</div>`});
+  return `<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px"><div><label style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;font-weight:600">Date de la session</label><div style="margin-top:5px"><input type="date" value="${S.ed}" onchange="sed(this.value)" style="padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;font-family:'Space Mono',monospace;outline:none"></div></div><div style="display:flex;gap:5px;flex-wrap:wrap"><button onclick="shd(-1)" style="padding:5px 10px;border-radius:7px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:11px;cursor:pointer">← Veille</button><button onclick="sed('${ti()}')" style="padding:5px 10px;border-radius:7px;border:1px solid #22d3ee30;background:#22d3ee15;color:#22d3ee;font-size:11px;cursor:pointer;font-weight:600">Aujourd'hui</button><button onclick="shd(1)" style="padding:5px 10px;border-radius:7px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:11px;cursor:pointer">Lendemain →</button></div></div>${ex?'<div class="en">✓ Données existantes — modifiez et sauvegardez pour mettre à jour</div>':''}</div>${gc}<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:24px"><button class="sbtn" onclick="se()">💾 Sauvegarder</button><span id="ss" style="font-size:12px;font-weight:600"></span></div><div class="card"><h3 style="font-size:14px;font-weight:600;margin-bottom:12px">📋 Sessions enregistrées</h3><p class="card-desc" style="margin-top:0">Cliquez sur une session pour la modifier. L'icône 🗑 permet de la supprimer.</p>${d.length===0?'<p style="color:var(--text2);font-size:12px">Aucune donnée.</p>':`<div style="display:flex;flex-direction:column;gap:4px">${sl}</div>`}</div>`;
 }
 
 /* ═══ SETTINGS ═══ */
 function rS(){
   const g=S.grids;let gl='';
-  g.forEach(gr=>{gl+=`<div class="cg" style="background:${gr.color}08;border:1px solid ${gr.color}25"><span style="font-size:16px;font-weight:700;color:${gr.color};font-family:'Space Mono',monospace;min-width:50px">${gr.label}</span><div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#64748b"><span>Essais par défaut :</span><input type="number" min="1" max="20" value="${gr.defaultAttempts}" onchange="ua('${gr.key}',this.value)"></div><div style="margin-left:auto">${S.cdg===gr.key?`<div style="display:flex;gap:4px"><span style="font-size:11px;color:#64748b;align-self:center;margin-right:4px">Sûr ?</span><button onclick="rg('${gr.key}')" style="padding:4px 10px;border-radius:6px;border:none;background:#f87171;color:#fff;font-size:11px;cursor:pointer;font-weight:600">Oui</button><button onclick="S.cdg=null;R()" style="padding:4px 10px;border-radius:6px;border:1px solid #1e293b;background:transparent;color:#64748b;font-size:11px;cursor:pointer">Non</button></div>`:`<button onclick="S.cdg='${gr.key}';R()" style="padding:4px 10px;border-radius:6px;border:1px solid #f8717130;background:#f8717118;color:#f87171;font-size:11px;cursor:pointer;font-weight:600">Supprimer</button>`}</div></div>`});
-  const af=S.sag?`<div style="margin-top:14px;padding:16px;border-radius:10px;border:1px solid #22d3ee30;background:#22d3ee08"><div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap"><div><label style="font-size:11px;color:#64748b;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Taille (n)</label><input type="number" min="2" max="12" placeholder="6" value="${S.ngs}" oninput="S.ngs=this.value" style="width:60px;padding:8px 10px;border-radius:8px;border:1px solid #1e293b;background:#0f172a;color:#e2e8f0;font-size:14px;font-family:'Space Mono',monospace;outline:none;text-align:center"><span style="font-size:12px;color:#64748b;margin-left:6px">→ ${S.ngs&&!isNaN(parseInt(S.ngs))?S.ngs+'×'+S.ngs:'n×n'}</span></div><div><label style="font-size:11px;color:#64748b;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Essais / jour</label><input type="number" min="1" max="20" value="${S.nga}" oninput="S.nga=this.value" style="width:60px;padding:8px 10px;border-radius:8px;border:1px solid #1e293b;background:#0f172a;color:#e2e8f0;font-size:14px;font-family:'Space Mono',monospace;outline:none;text-align:center"></div><button onclick="ag()" style="padding:8px 20px;border-radius:8px;border:none;background:#22d3ee;color:#0a0e17;font-size:13px;font-weight:700;cursor:pointer">Ajouter</button><button onclick="S.sag=false;R()" style="padding:8px 14px;border-radius:8px;border:1px solid #1e293b;background:transparent;color:#64748b;font-size:13px;cursor:pointer">Annuler</button></div></div>`:`<button onclick="S.sag=true;R()" style="margin-top:14px;padding:10px 20px;border-radius:9px;border:1px dashed #1e293b;background:transparent;color:#64748b;font-size:13px;cursor:pointer;width:100%">+ Ajouter une grille</button>`;
-  const rb=S.cr===2?`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font-size:12px;color:#f87171;font-weight:700">⚠️ Vraiment vraiment sûr ? Toutes vos données seront perdues définitivement.</span><button onclick="ra2()" style="padding:6px 14px;border-radius:7px;border:none;background:#f87171;color:#fff;font-size:12px;cursor:pointer;font-weight:600">Oui, supprimer tout</button><button onclick="S.cr=0;R()" style="padding:6px 14px;border-radius:7px;border:1px solid #1e293b;background:transparent;color:#64748b;font-size:12px;cursor:pointer">Annuler</button></div>`
-  :S.cr===1?`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font-size:12px;color:#f87171">Êtes-vous sûr ?</span><button onclick="S.cr=2;R()" style="padding:6px 14px;border-radius:7px;border:none;background:#f8717180;color:#fff;font-size:12px;cursor:pointer;font-weight:600">Oui</button><button onclick="S.cr=0;R()" style="padding:6px 14px;border-radius:7px;border:1px solid #1e293b;background:transparent;color:#64748b;font-size:12px;cursor:pointer">Non</button></div>`
+  g.forEach(gr=>{gl+=`<div class="cg" style="background:${gr.color}08;border:1px solid ${gr.color}25"><span style="font-size:16px;font-weight:700;color:${gr.color};font-family:'Space Mono',monospace;min-width:50px">${gr.label}</span><div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><span>Essais par défaut :</span><input type="number" min="1" max="20" value="${gr.defaultAttempts}" onchange="ua('${gr.key}',this.value)"></div><div style="margin-left:auto">${S.cdg===gr.key?`<div style="display:flex;gap:4px"><span style="font-size:11px;color:var(--text2);align-self:center;margin-right:4px">Sûr ?</span><button onclick="rg('${gr.key}')" style="padding:4px 10px;border-radius:6px;border:none;background:#f87171;color:#fff;font-size:11px;cursor:pointer;font-weight:600">Oui</button><button onclick="S.cdg=null;R()" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:11px;cursor:pointer">Non</button></div>`:`<button onclick="S.cdg='${gr.key}';R()" style="padding:4px 10px;border-radius:6px;border:1px solid #f8717130;background:#f8717118;color:#f87171;font-size:11px;cursor:pointer;font-weight:600">Supprimer</button>`}</div></div>`});
+  const af=S.sag?`<div style="margin-top:14px;padding:16px;border-radius:10px;border:1px solid #22d3ee30;background:#22d3ee08"><div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap"><div><label style="font-size:11px;color:var(--text2);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Taille (n)</label><input type="number" min="2" max="12" placeholder="6" value="${S.ngs}" oninput="S.ngs=this.value" style="width:60px;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-family:'Space Mono',monospace;outline:none;text-align:center"><span style="font-size:12px;color:var(--text2);margin-left:6px">→ ${S.ngs&&!isNaN(parseInt(S.ngs))?S.ngs+'×'+S.ngs:'n×n'}</span></div><div><label style="font-size:11px;color:var(--text2);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Essais / jour</label><input type="number" min="1" max="20" value="${S.nga}" oninput="S.nga=this.value" style="width:60px;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-family:'Space Mono',monospace;outline:none;text-align:center"></div><button onclick="ag()" style="padding:8px 20px;border-radius:8px;border:none;background:#22d3ee;color:#0a0e17;font-size:13px;font-weight:700;cursor:pointer">Ajouter</button><button onclick="S.sag=false;R()" style="padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:13px;cursor:pointer">Annuler</button></div></div>`:`<button onclick="S.sag=true;R()" style="margin-top:14px;padding:10px 20px;border-radius:9px;border:1px dashed var(--border);background:transparent;color:var(--text2);font-size:13px;cursor:pointer;width:100%">+ Ajouter une grille</button>`;
+  const rb=S.cr===2?`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font-size:12px;color:#f87171;font-weight:700">⚠️ Vraiment vraiment sûr ? Toutes vos données seront perdues définitivement.</span><button onclick="ra2()" style="padding:6px 14px;border-radius:7px;border:none;background:#f87171;color:#fff;font-size:12px;cursor:pointer;font-weight:600">Oui, supprimer tout</button><button onclick="S.cr=0;R()" style="padding:6px 14px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:12px;cursor:pointer">Annuler</button></div>`
+  :S.cr===1?`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font-size:12px;color:#f87171">Êtes-vous sûr ?</span><button onclick="S.cr=2;R()" style="padding:6px 14px;border-radius:7px;border:none;background:#f8717180;color:#fff;font-size:12px;cursor:pointer;font-weight:600">Oui</button><button onclick="S.cr=0;R()" style="padding:6px 14px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:12px;cursor:pointer">Non</button></div>`
   :`<button onclick="S.cr=1;R()" style="padding:8px 18px;border-radius:8px;border:1px solid #f8717130;background:#f8717118;color:#f87171;font-size:12px;cursor:pointer;font-weight:600">↺ Réinitialiser</button>`;
   // Objectives section
   let objHtml='';
@@ -615,9 +618,9 @@ function rS(){
     }else if(target){status='Pas encore de données';}
     objHtml+=`<div class="obj-row" style="background:${gr.color}08;border:1px solid ${gr.color}20">
       <span style="font-weight:700;color:${gr.color};font-family:'Space Mono',monospace;min-width:40px">${gr.label}</span>
-      <span style="font-size:11px;color:#64748b">Objectif :</span>
+      <span style="font-size:11px;color:var(--text2)">Objectif :</span>
       <input class="obj-input" type="number" step="0.1" min="0" placeholder="—" value="${target||''}" onchange="setObj('${gr.key}',this.value);R()">
-      <span style="font-size:11px;color:#64748b">s</span>
+      <span style="font-size:11px;color:var(--text2)">s</span>
       ${target?`<div class="obj-bar"><div class="obj-fill" style="width:${pct}%;background:${pct>=100?'#34d399':gr.color}"></div></div><span style="font-size:11px;color:${pct>=100?'#34d399':'#64748b'};font-weight:600;min-width:60px">${pct>=100?status:pct+'% — '+status}</span>`:''}
     </div>`;
   });
@@ -628,7 +631,10 @@ function rS(){
     <button class="export-btn" onclick="exportCSV()">📊 Export CSV</button>
   </div>`;
 
-  return `<div class="card"><h2>🎯 Objectifs</h2><p class="card-desc">Fixez un temps cible par grille pour suivre votre progression vers vos objectifs.</p>${objHtml}</div><div class="card"><h2>🎛 Grilles configurées</h2><p class="card-desc">Gérez vos tailles de grille et le nombre d'essais par défaut pour chacune.</p>${gl}${af}</div><div class="card"><h2>📤 Exporter</h2><p class="card-desc">Téléchargez vos données pour les sauvegarder ou les analyser ailleurs.</p>${exportHtml}</div><div class="card"><h2>🔧 Données</h2><p class="card-desc">Réinitialise toutes vos données et grilles vers les valeurs d'origine (8 sessions du 2 au 9 février).</p>${rb}</div>`;
+  // Badges section
+  checkBadges();
+  const badgesHtml=renderBadges();
+  return `<div class="card"><h2>🏆 Badges</h2><p class="card-desc">Débloquez des badges en atteignant des objectifs d'entraînement.</p>${badgesHtml}</div><div class="card"><h2>🎯 Objectifs</h2><p class="card-desc">Fixez un temps cible par grille pour suivre votre progression vers vos objectifs.</p>${objHtml}</div><div class="card"><h2>🎛 Grilles configurées</h2><p class="card-desc">Gérez vos tailles de grille et le nombre d'essais par défaut pour chacune.</p>${gl}${af}</div><div class="card"><h2>📤 Exporter</h2><p class="card-desc">Téléchargez vos données pour les sauvegarder ou les analyser ailleurs.</p>${exportHtml}</div><div class="card"><h2>🔧 Données</h2><p class="card-desc">Réinitialise toutes vos données et grilles vers les valeurs d'origine (8 sessions du 2 au 9 février).</p>${rb}</div>`;
 }
 
 /* ═══ GAME STATE ═══ */
@@ -656,13 +662,15 @@ function shuffleArray(n) {
 
 function gameSetSize(n) {
   stopGameTimer();
-  GM.size = n;
-  GM.total = n * n;
-  GM.state = 'ready';
-  GM.result = null;
-  GM.next = 1;
-  GM.board = shuffleArray(GM.total);
-  R();
+  const wrap = document.querySelector('.game-board-wrap');
+  if (wrap && GM.size !== n) {
+    wrap.classList.add('switching');
+    setTimeout(() => {
+      GM.size = n; GM.total = n * n; GM.state = 'ready'; GM.result = null; GM.next = 1; GM.board = shuffleArray(GM.total); R();
+    }, 200);
+  } else {
+    GM.size = n; GM.total = n * n; GM.state = 'ready'; GM.result = null; GM.next = 1; GM.board = shuffleArray(GM.total); R();
+  }
 }
 
 function startGame() {
@@ -699,6 +707,7 @@ function gameClick(num) {
   if (GM.state === 'ready') return; // wrong first click, ignore
   if (num === GM.next) {
     // Correct — cell stays EXACTLY the same visually
+    sfxCorrect();vib(10);
     GM.next++;
     const nextEl = document.getElementById('game-next-num');
     if (nextEl) nextEl.textContent = GM.next <= GM.total ? GM.next : '✓';
@@ -707,10 +716,16 @@ function gameClick(num) {
       GM.elapsed = (performance.now() - GM.startTime) / 1000;
       GM.result = +GM.elapsed.toFixed(2);
       GM.state = 'done';
+      // Check for record
+      const key = GM.size + 'x' + GM.size;
+      const allVals = S.data.flatMap(d => d[key] || []);
+      const pb = allVals.length ? Math.min(...allVals) : null;
+      if (!pb || GM.result < pb) { sfxRecord(); setTimeout(launchConfetti, 100); }
       R();
     }
   } else {
     // Wrong — brief red flash, no blocking
+    sfxWrong();vib([30,20,30]);
     const cellEl = document.getElementById('gc-' + num);
     if (cellEl) { cellEl.className = 'game-cell wrong'; setTimeout(() => { if (cellEl && cellEl.className === 'game-cell wrong') cellEl.className = 'game-cell idle'; }, 200); }
   }
@@ -737,6 +752,7 @@ function gameSaveResult() {
   entry[key].push(GM.result);
   GM.sessionTimes.push({ key, time: GM.result });
   ps();
+  checkBadges();
   startGame();
 }
 
@@ -780,8 +796,8 @@ function rG() {
     return `<div class="game-wrap">${gameCountHTML}${sel}
       <div class="game-result">
         <div class="label">Terminé — ${n}×${n}</div>
-        <div class="time" style="color:${gc}">${GM.result}<span style="font-size:20px;color:#64748b">s</span></div>
-        ${isRecord ? '<div class="record-badge">🏆 Nouveau record !</div>' : personalBest ? `<div style="font-size:12px;color:#64748b;margin-top:4px">Record : ${personalBest.toFixed(2)}s</div>` : ''}
+        <div class="time" style="color:${gc}">${GM.result}<span style="font-size:20px;color:var(--text2)">s</span></div>
+        ${isRecord ? '<div class="record-badge">🏆 Nouveau record !</div>' : personalBest ? `<div style="font-size:12px;color:var(--text2);margin-top:4px">Record : ${personalBest.toFixed(2)}s</div>` : ''}
         <div class="game-result-btns">
           <button class="save" onclick="gameSaveResult()">💾 Enregistrer & Rejouer</button>
           <button class="cancel" onclick="gameDiscard()">✗ Annuler & Rejouer</button>
@@ -793,33 +809,32 @@ function rG() {
 
   // Status text
   const statusHTML = GM.state === 'ready'
-    ? `<div style="text-align:center;font-size:13px;color:#64748b">Cliquez sur <span style="color:#22d3ee;font-weight:700">1</span> pour commencer</div>`
+    ? `<div style="text-align:center;font-size:13px;color:var(--text2)">Cliquez sur <span style="color:#22d3ee;font-weight:700">1</span> pour commencer</div>`
     : GM.state === 'playing'
     ? `<div style="text-align:center;font-size:13px;color:#34d399;font-weight:600">En cours...</div>`
     : '';
 
-  // Board with inline chrono bar
-  const cellSize = n <= 4 ? 'clamp(52px,16vw,80px)' : n <= 6 ? 'clamp(42px,13vw,68px)' : n <= 8 ? 'clamp(34px,9vw,50px)' : 'clamp(28px,7.5vw,40px)';
-  const fontSize = n <= 4 ? 'clamp(20px,5.5vw,30px)' : n <= 6 ? 'clamp(16px,4.5vw,24px)' : n <= 8 ? 'clamp(13px,3vw,18px)' : 'clamp(11px,2.5vw,15px)';
-  const boardW = `min(90vw,520px)`;
-  let board = `<div style="max-width:${boardW};width:100%;margin:0 auto">`;
+  // Board with inline chrono bar — fixed grid size, cells scale to fit
+  const boardMax = 420;
+  const fontSize = n <= 4 ? 'clamp(20px,5.5vw,30px)' : n <= 6 ? 'clamp(14px,4vw,22px)' : n <= 8 ? 'clamp(12px,3vw,17px)' : 'clamp(10px,2.2vw,14px)';
+  let board = `<div style="width:min(90vw,${boardMax}px)">`;
   // Chrono bar above the grid
   board += `<div style="display:flex;justify-content:space-between;align-items:baseline;padding:0 2px 6px;font-family:'Space Mono',monospace">`;
-  board += `<span style="font-size:13px;color:#64748b">Next: <span id="game-next-num" style="color:#22d3ee;font-weight:700">${GM.state==='ready'?1:GM.next<=GM.total?GM.next:'✓'}</span></span>`;
-  board += `<span id="game-timer" style="font-size:13px;color:#64748b;font-weight:600">${GM.state==='playing'?'0.00':'0.00'}</span>`;
+  board += `<span style="font-size:13px;color:var(--text2)">Next: <span id="game-next-num" style="color:#22d3ee;font-weight:700">${GM.state==='ready'?1:GM.next<=GM.total?GM.next:'✓'}</span></span>`;
+  board += `<span id="game-timer" style="font-size:13px;color:var(--text2);font-weight:600">${GM.state==='playing'?'0.00':'0.00'}</span>`;
   board += `</div>`;
-  board += `<div class="game-board" style="grid-template-columns:repeat(${n},${cellSize});gap:0;">`;
+  board += `<div class="game-board" style="grid-template-columns:repeat(${n},1fr);gap:0;">`;
   GM.board.forEach(num => {
-    board += `<div id="gc-${num}" class="game-cell idle" onclick="gameClick(${num})" style="width:${cellSize};height:${cellSize};font-size:${fontSize}">${num}</div>`;
+    board += `<div id="gc-${num}" class="game-cell idle" onclick="gameClick(${num})" style="aspect-ratio:1;font-size:${fontSize}">${num}</div>`;
   });
   board += '</div></div>';
 
   // Restart button (replaces start button)
-  const restartBtn = `<button onclick="startGame()" style="margin-top:4px;padding:8px 24px;border-radius:8px;border:1px solid #1e293b;background:transparent;color:#64748b;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;transition:all .15s">↻ Restart</button>`;
+  const restartBtn = `<button onclick="startGame()" style="margin-top:4px;padding:8px 24px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text2);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;transition:all .15s">↻ Restart</button>`;
 
-  const pbText = personalBest ? `<div style="text-align:center;font-size:12px;color:#64748b;margin-top:-8px">Record ${n}×${n} : <span style="color:${gc};font-weight:700">${personalBest.toFixed(2)}s</span></div>` : '';
+  const pbText = personalBest ? `<div style="text-align:center;font-size:12px;color:var(--text2);margin-top:-8px">Record ${n}×${n} : <span style="color:${gc};font-weight:700">${personalBest.toFixed(2)}s</span></div>` : '';
 
-  return `<div class="game-wrap">${gameCountHTML}${sel}${statusHTML}${pbText}${board}${restartBtn}${renderGameSession(gc)}</div>`;
+  return `<div class="game-wrap">${gameCountHTML}${sel}<div class="game-board-wrap">${statusHTML}${pbText}${board}${restartBtn}</div>${renderGameSession(gc)}</div>`;
 }
 
 function renderGameSession(gc) {
@@ -837,8 +852,8 @@ function renderGameSession(gc) {
 
 /* ═══ ACTIONS ═══ */
 function sv(v){stopGameTimer();if(S.view==='entry'&&v!=='entry'){clearTimeout(_autoSaveTimer);seQuiet()}S.view=v;if(v==='entry')lev();if(v==='play'){GM.state='ready';GM.board=shuffleArray(GM.total);GM.next=1;GM.result=null;}R()}
-function sfl(f){S.sf=f;R()}
-function sed(d){if(S.view==='entry'){clearTimeout(_autoSaveTimer);seQuiet()}S.ed=d;lev();R()}
+function sfl(f){S.sf=f;_naR()}
+function sed(d){if(S.view==='entry'){clearTimeout(_autoSaveTimer);seQuiet()}S.ed=d;lev();_naR()}
 function shd(n){const d=new Date(S.ed+"T12:00:00");d.setDate(d.getDate()+n);sed(d.toISOString().slice(0,10))}
 function ue(gk,i,v){if(!S.ev[gk])S.ev[gk]=[];S.ev[gk][i]=v;autoSave()}
 let _autoSaveTimer=null;
@@ -861,6 +876,107 @@ function ra2(){S.data=JSON.parse(JSON.stringify(ID));S.grids=JSON.parse(JSON.str
 
 // Close calendar on outside click
 document.addEventListener('click',()=>{if(S.calOpen)closeCal()});
+
+/* ═══ SOUND & VIBRATION ═══ */
+const _actx = new (window.AudioContext || window.webkitAudioContext)();
+function sfxCorrect(){
+  const o=_actx.createOscillator(),g=_actx.createGain();
+  o.connect(g);g.connect(_actx.destination);
+  o.type='sine';o.frequency.setValueAtTime(880,_actx.currentTime);
+  g.gain.setValueAtTime(0.08,_actx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001,_actx.currentTime+0.08);
+  o.start();o.stop(_actx.currentTime+0.08);
+}
+function sfxWrong(){
+  const o=_actx.createOscillator(),g=_actx.createGain();
+  o.connect(g);g.connect(_actx.destination);
+  o.type='square';o.frequency.setValueAtTime(220,_actx.currentTime);
+  g.gain.setValueAtTime(0.06,_actx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001,_actx.currentTime+0.15);
+  o.start();o.stop(_actx.currentTime+0.15);
+}
+function sfxRecord(){
+  [0,100,200].forEach((delay,i)=>{
+    setTimeout(()=>{
+      const o=_actx.createOscillator(),g=_actx.createGain();
+      o.connect(g);g.connect(_actx.destination);
+      o.type='sine';o.frequency.setValueAtTime([523,659,784][i],_actx.currentTime);
+      g.gain.setValueAtTime(0.1,_actx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,_actx.currentTime+0.2);
+      o.start();o.stop(_actx.currentTime+0.2);
+    },delay);
+  });
+}
+function vib(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
+
+/* ═══ CONFETTI ═══ */
+function launchConfetti(){
+  let canvas=document.getElementById('confetti-canvas');
+  if(!canvas){canvas=document.createElement('canvas');canvas.id='confetti-canvas';document.body.appendChild(canvas)}
+  const ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  const pieces=[];const colors=['#22d3ee','#a78bfa','#fb923c','#f472b6','#4ade80','#facc15'];
+  for(let i=0;i<80;i++){
+    pieces.push({x:canvas.width/2,y:canvas.height/2,vx:(Math.random()-0.5)*12,vy:Math.random()*-14-4,
+      r:Math.random()*6+3,c:colors[Math.floor(Math.random()*colors.length)],rot:Math.random()*360,rv:(Math.random()-0.5)*8,a:1});
+  }
+  let frame=0;
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    let alive=false;
+    pieces.forEach(p=>{
+      p.x+=p.vx;p.vy+=0.3;p.y+=p.vy;p.rot+=p.rv;
+      if(frame>40)p.a=Math.max(0,p.a-0.02);
+      if(p.a>0)alive=true;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);
+      ctx.globalAlpha=p.a;ctx.fillStyle=p.c;
+      ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r);ctx.restore();
+    });
+    frame++;
+    if(alive&&frame<120)requestAnimationFrame(draw);
+    else{ctx.clearRect(0,0,canvas.width,canvas.height);canvas.remove()}
+  }
+  requestAnimationFrame(draw);
+}
+
+/* ═══ BADGES ═══ */
+const BADGES=[
+  {id:'first',icon:'🎯',name:'Premier pas',desc:'Compléter une grille',check:d=>d.some(x=>S.grids.some(g=>(x[g.key]?.length||0)>0))},
+  {id:'ten',icon:'🔟',name:'Dizaine',desc:'10 parties jouées',check:d=>d.reduce((s,x)=>s+S.grids.reduce((s2,g)=>s2+(x[g.key]?.length||0),0),0)>=10},
+  {id:'fifty',icon:'🏅',name:'Cinquante',desc:'50 parties jouées',check:d=>d.reduce((s,x)=>s+S.grids.reduce((s2,g)=>s2+(x[g.key]?.length||0),0),0)>=50},
+  {id:'hundred',icon:'💯',name:'Centurion',desc:'100 parties jouées',check:d=>d.reduce((s,x)=>s+S.grids.reduce((s2,g)=>s2+(x[g.key]?.length||0),0),0)>=100},
+  {id:'streak3',icon:'🔥',name:'Flamme',desc:'3 jours de suite',check:d=>{const ds=[...new Set(d.filter(x=>S.grids.some(g=>(x[g.key]?.length||0)>0)).map(x=>x.date))].sort();let mx=1,c=1;for(let i=1;i<ds.length;i++){const diff=(new Date(ds[i])-new Date(ds[i-1]))/(864e5);c=diff===1?c+1:1;mx=Math.max(mx,c)}return mx>=3}},
+  {id:'streak7',icon:'🔥',name:'Semaine de feu',desc:'7 jours de suite',check:d=>{const ds=[...new Set(d.filter(x=>S.grids.some(g=>(x[g.key]?.length||0)>0)).map(x=>x.date))].sort();let mx=1,c=1;for(let i=1;i<ds.length;i++){const diff=(new Date(ds[i])-new Date(ds[i-1]))/(864e5);c=diff===1?c+1:1;mx=Math.max(mx,c)}return mx>=7}},
+  {id:'multi3',icon:'🧩',name:'Polyvalent',desc:'Jouer 3 grilles différentes',check:d=>S.grids.filter(g=>d.some(x=>(x[g.key]?.length||0)>0)).length>=3},
+  {id:'sub3',icon:'⚡',name:'Éclair',desc:'Finir un 3×3 en moins de 3s',check:d=>d.some(x=>(x['3x3']||[]).some(t=>t<3))},
+  {id:'sub10',icon:'🚀',name:'Fusée',desc:'Finir un 4×4 en moins de 10s',check:d=>d.some(x=>(x['4x4']||[]).some(t=>t<10))},
+  {id:'sub30',icon:'💎',name:'Diamant',desc:'Finir un 5×5 en moins de 30s',check:d=>d.some(x=>(x['5x5']||[]).some(t=>t<30))},
+];
+if(!S.earnedBadges)S.earnedBadges=[];
+
+function checkBadges(){
+  let newBadge=null;
+  BADGES.forEach(b=>{
+    if(!S.earnedBadges.includes(b.id)&&b.check(S.data)){
+      S.earnedBadges.push(b.id);newBadge=b;
+    }
+  });
+  if(newBadge)showBadgeToast(newBadge);
+}
+function showBadgeToast(b){
+  const el=document.createElement('div');el.className='badge-toast';
+  el.innerHTML=`<span style="font-size:20px">${b.icon}</span><span>${b.name} — ${b.desc}</span>`;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),3200);
+}
+function renderBadges(){
+  let h='<div class="badges-grid">';
+  BADGES.forEach(b=>{
+    const earned=S.earnedBadges.includes(b.id);
+    h+=`<div class="badge-item ${earned?'earned':'locked'}" title="${b.desc}"><span style="font-size:16px">${b.icon}</span>${b.name}</div>`;
+  });
+  return h+'</div>';
+}
 </script>
 </body>
 </html>
